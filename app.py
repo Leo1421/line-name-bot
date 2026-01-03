@@ -5,6 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.exceptions import InvalidSignatureError
+from linebot.models import FlexSendMessage, BubbleContainer, BoxComponent, TextComponent, SeparatorComponent
 
 app = Flask(__name__)
 
@@ -119,5 +120,6 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
