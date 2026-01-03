@@ -80,6 +80,7 @@ def handle_message(event):
             ren = s_strokes[-1] + n_strokes[0]
             di = (n_strokes[0] + 1) if len(name) == 1 else sum(n_strokes[:2])
             wai = 2 if len(name) == 1 else n_strokes[-1] + 1
+            zong = sum(s_strokes) + sum(n_strokes)
 
             # 組合回覆內容
             nayin_str = ""
@@ -96,6 +97,7 @@ def handle_message(event):
                 f"人格：{ren} ({get_element(ren)})\n"
                 f"地格：{di} ({get_element(di)})\n"
                 f"外格：{wai} ({get_element(wai)})"
+                f"總格：{zong} ({get_element(zong)})"
             )
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
             
@@ -117,3 +119,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
