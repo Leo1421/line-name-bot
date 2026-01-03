@@ -96,7 +96,7 @@ def handle_message(event):
                 f"天格：{tian} ({get_element(tian)})\n"
                 f"人格：{ren} ({get_element(ren)})\n"
                 f"地格：{di} ({get_element(di)})\n"
-                f"外格：{wai} ({get_element(wai)})"
+                f"外格：{wai} ({get_element(wai)})\n"
                 f"總格：{zong} ({get_element(zong)})"
             )
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
@@ -119,4 +119,5 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
