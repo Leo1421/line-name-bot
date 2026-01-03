@@ -74,3 +74,46 @@ def handle_message(event):
             # 依每個字查康熙筆畫
             s_strokes = [get_stroke_count(c) for c in surname]
             n_strokes = [get_stroke_count(c) for c in name]
+            
+            # 四格計算邏輯
+            tian = sum(s_strokes) if len(surname) > 1 else s_strokes[0] + 1
+            ren = s_strokes[-1] + n_strokes[0]
+            di = (n_strokes[0] + 1) if len(name) == 1 else sum(n_strokes[:2])
+            wai = 2 if len(name) == 1 else n_strokes[-1] + 1
+
+            # 組合回覆內容
+            nayin_str = ""
+            if birth_year:
+                nayin_res = get_nayin(birth_year)
+                if nayin_res:
+                    nayin_str = f"出生納音：{nayin_res}\n"
+
+            reply = (
+                f"【{full_name}】格局\n"
+                f"{nayin_str}"
+                f"----------------\n"
+                f"天格：{tian} ({get_element(tian)})\n"
+                f"人格：{ren} ({get_element(ren)})\n"
+                f"地格：{di} ({get_element(di)})\n"
+                f"外格：{wai} ({get_element(wai)})"
+            )
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
+            
+        except Exception as e:
+            print(f"計算錯誤: {e}")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請輸入正確姓名格式。"))
+    else:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入姓名，例如：李大同 1990"))
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return 'OK'
+
+if __name__ == "__main__":
+    app.run()
