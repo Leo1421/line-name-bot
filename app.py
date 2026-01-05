@@ -43,6 +43,13 @@ def get_nayin(year):
         return nayins[(y - 1924) % 60]
     except: return None
 
+def get_spirit_comment(zong):
+    # 龍骨氣判定
+    strong_numbers = [15, 16, 21, 23, 29, 31, 33, 37, 45, 52]
+    if zong in strong_numbers:
+        return "🐉 此名自帶「龍骨氣」，格局宏大。"
+    return "✨ 此名格局溫和，處世圓融。"
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text.strip()
@@ -60,8 +67,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # --- 底圖連結 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/refs/heads/main/background.jpg" 
+            # 您提供的 GitHub 直連網址
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/refs/heads/main/background.jpg"
 
             flex_contents = {
                 "type": "bubble",
@@ -70,11 +77,11 @@ def handle_message(event):
                     "type": "box", "layout": "vertical", "contents": [
                         # 底圖圖層
                         {"type": "image", "url": BACKGROUND_URL, "aspectMode": "cover", "aspectRatio": "1:1.3", "size": "full", "position": "absolute"},
-                        # 內容圖層
+                        # 內容圖層 (文字疊加在上方)
                         {"type": "box", "layout": "vertical", "contents": [
                             {"type": "text", "text": "- 婉穎命理所 -", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                # 左側 (天、外)
+                                # 左側 (天格、外格)
                                 {"type": "box", "layout": "vertical", "flex": 1, "spacing": "xl", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{tian} {get_element(tian)}", "weight": "bold", "size": "md"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "外格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "size": "md"}]}
@@ -83,16 +90,17 @@ def handle_message(event):
                                 {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": full_name, "weight": "bold", "size": "3xl", "align": "center", "color": "#000000"}
                                 ]},
-                                # 右側 (人、地)
+                                # 右側 (人格、地格)
                                 {"type": "box", "layout": "vertical", "flex": 1, "spacing": "xl", "align": "end", "contents": [
                                     {"type": "box", "layout": "vertical", "align": "end", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{ren} {get_element(ren)}", "weight": "bold", "size": "md"}]},
                                     {"type": "box", "layout": "vertical", "align": "end", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{di} {get_element(di)}", "weight": "bold", "size": "md"}]}
                                 ]}
                             ]},
-                            # 底部 (總格與年份)
+                            # 底部內容
                             {"type": "box", "layout": "vertical", "margin": "xxl", "contents": [
                                 {"type": "text", "text": f"總格：{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#ff0000", "align": "center"},
-                                {"type": "text", "text": f"出生年：{birth_year if birth_year else '--'} ({n_res if n_res else '---'})", "size": "xs", "align": "center", "margin": "sm", "color": "#333333"}
+                                {"type": "text", "text": f"出生年：{birth_year if birth_year else '--'} ({n_res if n_res else '---'})", "size": "xs", "align": "center", "margin": "sm", "color": "#333333"},
+                                {"type": "text", "text": get_spirit_comment(zong), "margin": "md", "size": "xxs", "color": "#888888", "align": "center"}
                             ]}
                         ], "paddingAll": "30px"}
                     ], "paddingAll": "0px"
@@ -100,7 +108,7 @@ def handle_message(event):
             }
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}的分析結果", contents=flex_contents))
         except Exception:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="格式錯誤，請輸入：姓名 年份"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請輸入：姓名 1990"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
