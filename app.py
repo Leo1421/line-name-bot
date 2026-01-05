@@ -73,7 +73,7 @@ def handle_message(event):
             n_res = get_nayin(birth_year)
 
             # 底圖
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=6"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=7"
             flex_contents = {
                 "type": "bubble",
                 "size": "giga",
@@ -139,5 +139,6 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
