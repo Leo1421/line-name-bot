@@ -56,11 +56,11 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # 更新網址版本以破解快取
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=7"
+            # 更新版本號破解快取
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=8"
 
-            # 【名字加大且直排】組件：增加 spacing 使字與字之間拉開，以對齊右側三格
-            name_chars = [{"type": "text", "text": c, "weight": "bold", "size": "3xl", "align": "center", "color": "#000000"} for c in full_name]
+            # 名字直排組件 (加大)
+            name_chars = [{"type": "text", "text": c, "weight": "bold", "size": "3xl", "align": "center"} for c in full_name]
 
             flex_contents = {
                 "type": "bubble",
@@ -68,26 +68,25 @@ def handle_message(event):
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
-                        # 底圖
+                        # 關鍵修正：將比例改為 1.4:1 (更寬)，確保底部不被切掉
                         {
                             "type": "image", "url": BACKGROUND_URL, 
-                            "aspectMode": "cover", "aspectRatio": "1:1.2", 
+                            "aspectMode": "cover", "aspectRatio": "1.4:1", 
                             "size": "full", "position": "absolute"
                         },
-                        # 內容容器
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
                             {"type": "text", "text": "- 婉穎命理所 -", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                             
-                            # 核心區：外格 | 直排名字 | 天人地 | 出生年
+                            # 核心區
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                 # 1. 外格
                                 {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
-                                    {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "md"}
+                                    {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                 ]},
-                                # 2. 直排名字 (加大且增加間距)
+                                # 2. 直排名字 (對齊右側)
                                 {"type": "box", "layout": "vertical", "flex": 3, "justifyContent": "center", "spacing": "lg", "contents": name_chars},
-                                # 3. 天人地格 (右側對齊名字)
+                                # 3. 天人地格 (水平對齊名字)
                                 {"type": "box", "layout": "vertical", "flex": 3, "spacing": "xl", "justifyContent": "center", "paddingStart": "10px", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{tian} {get_element(tian)}", "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{ren} {get_element(ren)}", "weight": "bold", "size": "sm"}]},
@@ -101,19 +100,18 @@ def handle_message(event):
                                 ]}
                             ]},
                             
-                            # 分隔線
-                            {"type": "separator", "margin": "xxl", "color": "#333333"},
+                            {"type": "separator", "margin": "xl", "color": "#000000"},
                             
-                            # 底部總格
-                            {"type": "box", "layout": "vertical", "margin": "lg", "contents": [
+                            # 底部總格 (顏色改為黑色)
+                            {"type": "box", "layout": "vertical", "margin": "md", "contents": [
                                 {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
-                                {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#ff0000", "align": "center"}
+                                {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
                             ]}
                         ]}
                     ]
                 }
             }
-            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定書", contents=flex_contents))
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}分析", contents=flex_contents))
         except Exception:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="格式錯誤。"))
 
