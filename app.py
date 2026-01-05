@@ -28,7 +28,6 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin(year):
-    # 納音計算邏輯
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
@@ -57,8 +56,13 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # 強制更新快取
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=4"
+            # 強制更新網址破解快取
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=5"
+
+            # 將名字轉為垂直組件
+            vertical_name_components = []
+            for char in full_name:
+                vertical_name_components.append({"type": "text", "text": char, "weight": "bold", "size": "xxl", "align": "center"})
 
             flex_contents = {
                 "type": "bubble",
@@ -66,30 +70,28 @@ def handle_message(event):
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
-                        # 底圖 (1.2:1 寬版比例)
+                        # 底圖
                         {"type": "image", "url": BACKGROUND_URL, "aspectMode": "cover", "aspectRatio": "1.2:1", "size": "full", "position": "absolute"},
                         # 內容層
                         {"type": "box", "layout": "vertical", "paddingAll": "25px", "contents": [
                             {"type": "text", "text": "- 婉穎命理所 -", "weight": "bold", "color": "#8b4513", "size": "xs", "align": "center"},
                             
-                            # 核心排版：外格 | 名字 | 天地人 | 出生年
+                            # 核心區：外格 | 直排名字 | 天人地 | 出生年
                             {"type": "box", "layout": "horizontal", "margin": "xl", "contents": [
-                                # 1. 外格 (左側)
+                                # 1. 外格
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                 ]},
-                                # 2. 名字 (中間，縮小字體)
-                                {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
-                                    {"type": "text", "text": full_name, "weight": "bold", "size": "xxl", "align": "center"}
-                                ]},
-                                # 3. 天人地格 (右側區塊，增加內容左邊距使之往右偏)
-                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "sm", "paddingStart": "10px", "contents": [
+                                # 2. 直排名字 (對齊中間)
+                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "sm", "justifyContent": "center", "contents": vertical_name_components},
+                                # 3. 天人地格 (右側對齊名字)
+                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "xl", "paddingStart": "15px", "justifyContent": "center", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{tian} {get_element(tian)}", "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{ren} {get_element(ren)}", "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{di} {get_element(di)}", "weight": "bold", "size": "sm"}]}
                                 ]},
-                                # 4. 出生年 (最右側)
+                                # 4. 出生年
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"},
@@ -97,10 +99,9 @@ def handle_message(event):
                                 ]}
                             ]},
                             
-                            # 橫線 (模擬圖中黑線)
-                            {"type": "separator", "margin": "xxl", "color": "#000000"},
+                            {"type": "separator", "margin": "xl", "color": "#000000"},
                             
-                            # 底部總格
+                            # 總格
                             {"type": "box", "layout": "vertical", "margin": "lg", "contents": [
                                 {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
                                 {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "lg", "color": "#ff0000", "align": "center"}
@@ -109,9 +110,9 @@ def handle_message(event):
                     ]
                 }
             }
-            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定書", contents=flex_contents))
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定結果", contents=flex_contents))
         except Exception:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請確認輸入格式。"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請確認格式。"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
