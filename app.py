@@ -56,7 +56,7 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # 更新版本號破解快取
+            # 更新版本號快取
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=8"
 
             # 名字直排組件 (加大)
@@ -68,14 +68,14 @@ def handle_message(event):
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
-                        # 關鍵修正：將比例改為 1.4:1 (更寬)，確保底部不被切掉
+                        # 比例改為 1.1:1 (更寬)，確保底部不被切掉
                         {
                             "type": "image", "url": BACKGROUND_URL, 
                             "aspectMode": "cover", "aspectRatio": "1.1:1", 
                             "size": "full", "position": "absolute"
                         },
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
-                            {"type": "text", "text": "- 婉穎命理所 -", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
+                            {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                             
                             # 核心區
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
@@ -125,6 +125,7 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
 
