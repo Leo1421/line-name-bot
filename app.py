@@ -72,9 +72,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # 加上隨機參數破解 LINE 快取
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=2"
-
+            # 底圖
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=5"
             flex_contents = {
                 "type": "bubble",
                 "size": "giga",
@@ -88,7 +87,7 @@ def handle_message(event):
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "aspectMode": "cover",
-                            "aspectRatio": "1:1.25",
+                            "aspectRatio": "1:1",
                             "size": "full",
                             "position": "absolute"
                         },
@@ -140,3 +139,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
