@@ -67,8 +67,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin(birth_year)
 
-            # 您提供的 GitHub 直連網址
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/refs/heads/main/background.jpg"
+           # 底圖
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg"
 
             flex_contents = {
                 "type": "bubble",
@@ -120,3 +120,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
