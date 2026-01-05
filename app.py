@@ -71,7 +71,7 @@ def handle_message(event):
                         # 關鍵修正：將比例改為 1.4:1 (更寬)，確保底部不被切掉
                         {
                             "type": "image", "url": BACKGROUND_URL, 
-                            "aspectMode": "cover", "aspectRatio": "1:1", 
+                            "aspectMode": "cover", "aspectRatio": "1.1:1", 
                             "size": "full", "position": "absolute"
                         },
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
@@ -125,5 +125,6 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
