@@ -57,7 +57,7 @@ def handle_message(event):
             n_res = get_nayin(birth_year)
 
             # 更新版本號快取
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=8"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=9"
 
             # 名字直排組件 (加大)
             name_chars = [{"type": "text", "text": c, "weight": "bold", "size": "3xl", "align": "center"} for c in full_name]
@@ -68,7 +68,7 @@ def handle_message(event):
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
-                        # 比例改為 1.1:1 (更寬)，確保底部不被切掉
+                        # 比例 1.1:1 寬版
                         {
                             "type": "image", "url": BACKGROUND_URL, 
                             "aspectMode": "cover", "aspectRatio": "1.1:1", 
@@ -77,23 +77,23 @@ def handle_message(event):
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
                             {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                             
-                            # 核心區
+                            # 核心排版區
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                # 1. 外格
-                                {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
+                                # 1. 外格 (縮小 flex 比例)
+                                {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                 ]},
-                                # 2. 直排名字 (對齊右側)
-                                {"type": "box", "layout": "vertical", "flex": 3, "justifyContent": "center", "spacing": "lg", "contents": name_chars},
-                                # 3. 天人地格 (水平對齊名字)
-                                {"type": "box", "layout": "vertical", "flex": 3, "spacing": "xl", "justifyContent": "center", "paddingStart": "10px", "contents": [
+                                # 2. 直排名字 (名字置中，與右側靠近)
+                                {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "lg", "contents": name_chars},
+                                # 3. 天人地格 (縮短間距，移除 paddingStart)
+                                {"type": "box", "layout": "vertical", "flex": 2, "spacing": "xl", "justifyContent": "center", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{tian} {get_element(tian)}", "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{ren} {get_element(ren)}", "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{di} {get_element(di)}", "weight": "bold", "size": "sm"}]}
                                 ]},
-                                # 4. 出生年
-                                {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
+                                # 4. 出生年 (縮小 flex 比例)
+                                {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"},
                                     {"type": "text", "text": f"({n_res if n_res else '--'})", "size": "xxs", "align": "center"}
@@ -102,7 +102,7 @@ def handle_message(event):
                             
                             {"type": "separator", "margin": "xl", "color": "#000000"},
                             
-                            # 底部總格 (顏色改為黑色)
+                            # 底部總格
                             {"type": "box", "layout": "vertical", "margin": "md", "contents": [
                                 {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
                                 {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
@@ -125,7 +125,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
-
-
-
