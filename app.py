@@ -61,4 +61,80 @@ def handle_message(event):
         birth_year = match.group(2)
         try:
             # 姓名切割與計算
-            surname, name = (full_name[:2], full_name[2:]) if len(full_name) >= 3 and full_name[:2] in ["歐陽", "司馬
+            surname, name = (full_name[:2], full_name[2:]) if len(full_name) >= 3 and full_name[:2] in ["歐陽", "司馬", "諸葛"] else (full_name[:1], full_name[1:])
+            s_strk, n_strk = [get_stroke_count(c) for c in surname], [get_stroke_count(c) for c in name]
+            tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
+            ren = (s_strk[-1] + n_strk[0])
+            di = ((n_strk[0] + 1) if len(name) == 1 else sum(n_strk[:2]))
+            wai = (2 if len(name) == 1 else n_strk[-1] + 1)
+            zong = sum(s_strk) + sum(n_strk)
+            n_res = get_nayin(birth_year)
+
+            # GitHub 直連網址
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg"
+
+            flex_contents = {
+                "type": "bubble",
+                "size": "giga",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "paddingAll": "0px",
+                    "contents": [
+                        # 底圖圖層
+                        {
+                            "type": "image",
+                            "url": BACKGROUND_URL,
+                            "aspectMode": "cover",
+                            "aspectRatio": "1:1",
+                            "size": "full",
+                            "position": "absolute"
+                        },
+                        # 內容圖層 (文字疊加)
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "paddingAll": "30px",
+                            "contents": [
+                                {"type": "text", "text": "- 婉穎命理所 -", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
+                                {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
+                                    # 左側
+                                    {"type": "box", "layout": "vertical", "flex": 1, "spacing": "xl", "contents": [
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{tian} {get_element(tian)}", "weight": "bold", "size": "md"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "外格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "size": "md"}]}
+                                    ]},
+                                    # 中間
+                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "contents": [
+                                        {"type": "text", "text": full_name, "weight": "bold", "size": "4xl", "align": "center", "color": "#000000"}
+                                    ]},
+                                    # 右側
+                                    {"type": "box", "layout": "vertical", "flex": 1, "spacing": "xl", "align": "end", "contents": [
+                                        {"type": "box", "layout": "vertical", "align": "end", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{ren} {get_element(ren)}", "weight": "bold", "size": "md"}]},
+                                        {"type": "box", "layout": "vertical", "align": "end", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": f"{di} {get_element(di)}", "weight": "bold", "size": "md"}]}
+                                    ]}
+                                ]},
+                                # 底部
+                                {"type": "box", "layout": "vertical", "margin": "xxl", "contents": [
+                                    {"type": "text", "text": f"總格：{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#ff0000", "align": "center"},
+                                    {"type": "text", "text": f"出生年：{birth_year if birth_year else '--'} ({n_res if n_res else '---'})", "size": "xs", "align": "center", "margin": "sm", "color": "#333333"},
+                                    {"type": "text", "text": get_spirit_comment(zong), "margin": "md", "size": "xs", "color": "#888888", "align": "center"}
+                                ]}
+                            ]
+                        }
+                    ]
+                }
+            }
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}的分析結果", contents=flex_contents))
+        except Exception:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請輸入：姓名 年份"))
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    try: handler.handle(body, signature)
+    except InvalidSignatureError: abort(400)
+    return 'OK'
+
+if __name__ == "__main__":
+    app.run()
