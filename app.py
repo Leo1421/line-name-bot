@@ -45,6 +45,7 @@ def get_nayin_simple(year):
     try:
         y = int(year)
         if y < 1924: return None
+        # 直接回傳納音最後一個字 (五行)
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -72,9 +73,9 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=35"
+            # 更新底圖版本號 v40
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=40"
 
-            # 建立直排名字與筆畫
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -93,13 +94,13 @@ def handle_message(event):
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 背景圖
+                        # --- 背景圖：拉長比例到 1:1.3，解決裁切問題 ---
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
                             "aspectMode": "cover",
-                            "aspectRatio": "1:1.15",
+                            "aspectRatio": "1:1.3",
                             "position": "absolute"
                         },
                         # 文字主容器
@@ -110,27 +111,34 @@ def handle_message(event):
                             "contents": [
                                 {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    # 1. 外格 (flex: 1.5)
+                                    # 1. 外格
                                     {"type": "box", "layout": "vertical", "flex": 15, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
                                         {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                     ]},
-                                    # 2. 名字 (flex: 3.5 - 電腦版需要較多空間)
+                                    # 2. 名字
                                     {"type": "box", "layout": "vertical", "flex": 35, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 3. 天人地 (flex: 2.5)
+                                    # 3. 天人地格
                                     {"type": "box", "layout": "vertical", "flex": 25, "spacing": "xl", "justifyContent": "center", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666", "align": "start"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm", "align": "start"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666", "align": "start"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm", "align": "start"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666", "align": "start"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm", "align": "start"}]}
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
                                     ]},
-                                    # 4. 年分納音 (flex: 2.5)
+                                    # 4. 出生年與納音五行 (精簡版)
                                     {"type": "box", "layout": "vertical", "flex": 25, "justifyContent": "center", "spacing": "md", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "年分", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}]}
+                                        {"type": "box", "layout": "vertical", "contents": [
+                                            {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
+                                            {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                        ]},
+                                        {"type": "box", "layout": "vertical", "contents": [
+                                            {"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"},
+                                            {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                        ]}
                                     ]}
                                 ]},
                                 {"type": "separator", "margin": "xl", "color": "#000000"},
-                                {"type": "box", "layout": "vertical", "margin": "lg", "contents": [
+                                # 總格
+                                {"type": "box", "layout": "vertical", "margin": "lg", "paddingBottom": "10px", "contents": [
                                     {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
                                 ]}
