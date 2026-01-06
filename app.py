@@ -45,7 +45,6 @@ def get_nayin_simple(year):
     try:
         y = int(year)
         if y < 1924: return None
-        # 直接回傳納音最後一個字 (五行)
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -73,8 +72,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            # 更新底圖版本 v50
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=50"
+            # 更新底圖版本 v55
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=55"
 
             name_with_strokes = []
             for char in full_name:
@@ -94,7 +93,6 @@ def handle_message(event):
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 背景圖：強制 100% 填充，防止電腦版裁切
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
@@ -104,7 +102,6 @@ def handle_message(event):
                             "width": "100%",
                             "height": "100%"
                         },
-                        # 文字主內容
                         {
                             "type": "box",
                             "layout": "vertical",
@@ -112,10 +109,10 @@ def handle_message(event):
                             "contents": [
                                 {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    # 1. 外格
+                                    # 1. 外格 (只顯示五行名稱)
                                     {"type": "box", "layout": "vertical", "flex": 15, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
-                                        {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
+                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "sm"}
                                     ]},
                                     # 2. 名字
                                     {"type": "box", "layout": "vertical", "flex": 35, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
@@ -125,13 +122,12 @@ def handle_message(event):
                                         {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
                                         {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
                                     ]},
-                                    # 4. 出生年與五行 (移除納音二字)
+                                    # 4. 出生年與五行
                                     {"type": "box", "layout": "vertical", "flex": 25, "justifyContent": "center", "spacing": "md", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
                                             {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
                                             {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}
                                         ]},
-                                        # 直接顯示五行字樣，不再有標籤
                                         {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
                                     ]}
                                 ]},
