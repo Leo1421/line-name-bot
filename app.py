@@ -116,7 +116,7 @@ def handle_message(event):
                             "paddingAll": "25px",
                             "contents": [
                                 # 頂部標題改為透明感設計，搭配新圖
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     # 外格
                                     {"type": "box", "layout": "vertical", "flex": 15, "justifyContent": "center", "contents": [
@@ -167,3 +167,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
