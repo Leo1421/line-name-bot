@@ -73,7 +73,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # 更新底圖版本 v55
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=55"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=56"
 
             name_with_strokes = []
             for char in full_name:
@@ -158,3 +158,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
