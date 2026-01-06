@@ -72,7 +72,7 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            # 更新底圖版本 v55
+            # 使用您的新圖網址 v56
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=56"
 
             name_with_strokes = []
@@ -81,18 +81,24 @@ def handle_message(event):
                 name_with_strokes.append({
                     "type": "box", "layout": "horizontal", "contents": [
                         {"type": "text", "text": char, "weight": "bold", "size": "3xl", "flex": 3, "align": "end"},
-                        {"type": "text", "text": f"{stroke}", "size": "sm", "flex": 2, "color": "#444444", "gravity": "center"}
+                        {"type": "text", "text": f"{stroke}", "size": "sm", "flex": 2, "color": "#7a7a7a", "gravity": "center"}
                     ]
                 })
 
             flex_contents = {
                 "type": "bubble",
                 "size": "giga",
+                "styles": {
+                    "body": {
+                        "backgroundColor": "#f8f5ed" # 使用與圖片相近的米白色作為基底，消除白邊感
+                    }
+                },
                 "body": {
                     "type": "box",
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
+                        # 背景圖：使用絕對定位，並設定為 cover 確保充滿容器
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
@@ -100,42 +106,45 @@ def handle_message(event):
                             "aspectMode": "cover",
                             "position": "absolute",
                             "width": "100%",
-                            "height": "100%"
+                            "height": "100%",
+                            "gravity": "center" # 確保 LOGO 盡量維持在中央
                         },
+                        # 內容區
                         {
                             "type": "box",
                             "layout": "vertical",
                             "paddingAll": "25px",
                             "contents": [
-                                {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
+                                # 頂部標題改為透明感設計，搭配新圖
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    # 1. 外格 (只顯示五行名稱)
+                                    # 外格
                                     {"type": "box", "layout": "vertical", "flex": 15, "justifyContent": "center", "contents": [
-                                        {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
-                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "sm"}
+                                        {"type": "text", "text": "外格", "size": "xs", "color": "#8e8e8e", "align": "center"},
+                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "sm", "color": "#4a4a4a"}
                                     ]},
-                                    # 2. 名字
+                                    # 名字
                                     {"type": "box", "layout": "vertical", "flex": 35, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 3. 天人地格
+                                    # 天人地格
                                     {"type": "box", "layout": "vertical", "flex": 25, "spacing": "xl", "justifyContent": "center", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#8e8e8e"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm", "color": "#4a4a4a"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#8e8e8e"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm", "color": "#4a4a4a"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#8e8e8e"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm", "color": "#4a4a4a"}]}
                                     ]},
-                                    # 4. 出生年與五行
+                                    # 出生年與五行
                                     {"type": "box", "layout": "vertical", "flex": 25, "justifyContent": "center", "spacing": "md", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
-                                            {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                            {"type": "text", "text": "出生年", "size": "xs", "color": "#8e8e8e", "align": "center"},
+                                            {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm", "color": "#4a4a4a"}
                                         ]},
-                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm", "color": "#4a4a4a"}
                                     ]}
                                 ]},
-                                {"type": "separator", "margin": "xl", "color": "#000000"},
-                                # 5. 總格
-                                {"type": "box", "layout": "vertical", "margin": "lg", "paddingBottom": "15px", "contents": [
-                                    {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
-                                    {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
+                                {"type": "separator", "margin": "xl", "color": "#d1d1d1"},
+                                # 總格
+                                {"type": "box", "layout": "vertical", "margin": "lg", "paddingBottom": "20px", "contents": [
+                                    {"type": "text", "text": "總格", "size": "xs", "color": "#8e8e8e", "align": "center"},
+                                    {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#2c2c2c", "align": "center"}
                                 ]}
                             ]
                         }
@@ -152,10 +161,9 @@ def callback():
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
-    except InvalidSignatureError:
+    except:
         abort(400)
     return 'OK'
 
 if __name__ == "__main__":
     app.run()
-
