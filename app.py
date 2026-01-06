@@ -11,7 +11,7 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(os.environ.get('CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.environ.get('CHANNEL_SECRET'))
 
-# 讀取康熙筆畫
+# 1. 讀取康熙筆畫
 KANGXI_JSON_PATH = os.path.join(os.path.dirname(__file__), "kangxi_total_strokes_kv.json")
 try:
     with open(KANGXI_JSON_PATH, "r", encoding="utf-8") as f:
@@ -19,7 +19,7 @@ try:
 except Exception:
     STROKE_DICT = {}
 
-# 台灣常見複姓與雙姓名單
+# 2. 根據內政部資料擴充台灣常見複姓與雙姓名單
 DOUBLE_SURNAME_LIST = [
     "張簡", "歐陽", "范姜", "周黃", "張廖", "張李", "張許", "張陳", 
     "劉張", "陳吳", "陳李", "陳黃", "李林", "郭李", "鄭黃", "江謝", 
@@ -57,7 +57,7 @@ def handle_message(event):
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
-            # 姓名切割邏輯
+            # 姓名切割邏輯：優先比對名單，或是四字名強制複姓算法
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name = full_name[:2], full_name[2:]
             else:
@@ -66,6 +66,7 @@ def handle_message(event):
             s_strk = [get_stroke_count(c) for c in surname]
             n_strk = [get_stroke_count(c) for c in name]
             
+            # 五格計算
             tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
             ren = (s_strk[-1] + n_strk[0])
             di = ((n_strk[0] + 1) if len(name) == 1 else sum(n_strk[:2]))
@@ -73,8 +74,9 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=16"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=17"
 
+            # 名字直排與筆畫顯示 (sm級別)
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -97,16 +99,49 @@ def handle_message(event):
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
                             {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
+                                # 外格
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                 ]},
+                                # 名字區
                                 {"type": "box", "layout": "vertical", "flex": 3, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
+                                # 天人地格
                                 {"type": "box", "layout": "vertical", "flex": 2, "spacing": "xl", "justifyContent": "center", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
                                 ]},
+                                # 出生年與納音
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "md", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}]},
-                                    {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text",
+                                    {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}]}
+                                ]}
+                            ]},
+                            {"type": "separator", "margin": "xl", "color": "#000000"},
+                            # 總格
+                            {"type": "box", "layout": "vertical", "margin": "md", "contents": [
+                                {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
+                                {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
+                            ]}
+                        ]}
+                    ]
+                }
+            }
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
+        except Exception as e:
+            app.logger.error(f"Error: {e}")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請確認輸入格式"))
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers.get('X-Line-Signature')
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return 'OK'
+
+if __name__ == "__main__":
+    app.run()
