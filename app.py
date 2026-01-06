@@ -72,8 +72,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            # 更新底圖 URL v21
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=21"
+            # 更新底圖 URL v22
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=22"
 
             name_with_strokes = []
             for char in full_name:
@@ -88,31 +88,36 @@ def handle_message(event):
             flex_contents = {
                 "type": "bubble",
                 "size": "giga",
+                "styles": {
+                    "body": {
+                        "backgroundColor": "#ffffff" # 確保背景基色統一，若底圖邊緣有色可改為該色
+                    }
+                },
                 "body": {
                     "type": "box",
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 1. 第一層：固定比例的背景圖 (決定卡片基礎高度)
+                        # 1. 底層背景圖：使用滿版覆蓋
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
                             "aspectMode": "cover",
-                            "aspectRatio": "1:1.15",
-                            "gravity": "top"
+                            "aspectRatio": "1:1.15", # 此比例最能兼顧 3 字與 4 字名
+                            "gravity": "center"
                         },
-                        # 2. 第二層：內容覆蓋 (絕對定位，填滿第一層並垂直置中)
+                        # 2. 內容層：絕對定位並微調 offset 消除極細白邊
                         {
                             "type": "box",
                             "layout": "vertical",
                             "position": "absolute",
-                            "offsetTop": "0px",
-                            "offsetBottom": "0px",
-                            "offsetStart": "0px",
-                            "offsetEnd": "0px",
+                            "offsetTop": "-1px",    # 往外溢出 1px 消除白邊
+                            "offsetBottom": "-1px",
+                            "offsetStart": "-1px",
+                            "offsetEnd": "-1px",
                             "paddingAll": "20px",
-                            "justifyContent": "center", # 垂直置中
+                            "justifyContent": "center",
                             "contents": [
                                 {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
                                 {"type": "box", "layout": "horizontal", "margin": "xl", "contents": [
