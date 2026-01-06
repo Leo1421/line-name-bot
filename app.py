@@ -8,10 +8,11 @@ from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
 
+# 請確保環境變數已正確設定
 line_bot_api = LineBotApi(os.environ.get('CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.environ.get('CHANNEL_SECRET'))
 
-# 1. 讀取康熙筆畫
+# --- 1. 讀取康熙筆畫數據 ---
 KANGXI_JSON_PATH = os.path.join(os.path.dirname(__file__), "kangxi_total_strokes_kv.json")
 try:
     with open(KANGXI_JSON_PATH, "r", encoding="utf-8") as f:
@@ -19,7 +20,7 @@ try:
 except Exception:
     STROKE_DICT = {}
 
-# 2. 根據內政部資料擴充台灣常見複姓與雙姓名單
+# --- 2. 擴充台灣常見複姓與雙姓名單 (依據內政部資料) ---
 DOUBLE_SURNAME_LIST = [
     "張簡", "歐陽", "范姜", "周黃", "張廖", "張李", "張許", "張陳", 
     "劉張", "陳吳", "陳李", "陳黃", "李林", "郭李", "鄭黃", "江謝", 
@@ -39,6 +40,7 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin_simple(year):
+    """取得出生年納音的最後一個字 (五行)"""
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
@@ -51,13 +53,14 @@ def get_nayin_simple(year):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text.strip()
+    # 支援格式：姓名+年份 或 姓名 年份
     match = re.match(r"([^\d\+\s\-]+)[\+\s\-]*(\d*)", msg)
     
     if match:
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
-            # 姓名切割邏輯：優先比對名單，或是四字名強制複姓算法
+            # 判斷複姓邏輯：名單匹配 或 強制四字名
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name = full_name[:2], full_name[2:]
             else:
@@ -74,9 +77,10 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=17"
+            # 背景圖 URL (建議保持版本號更新以破解快取)
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=20"
 
-            # 名字直排與筆畫顯示 (sm級別)
+            # 建立直排姓名與筆畫 (字體調大為 sm)
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -92,35 +96,50 @@ def handle_message(event):
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
+                        # --- 背景圖片優化：使用動態高度適應 ---
                         {
-                            "type": "image", "url": BACKGROUND_URL, "aspectMode": "cover", 
-                            "aspectRatio": "1:1.2", "size": "full", "position": "absolute"
+                            "type": "image", 
+                            "url": BACKGROUND_URL, 
+                            "aspectMode": "cover", 
+                            "size": "full", 
+                            "position": "absolute",
+                            "width": "100%",
+                            "height": "100%"
                         },
                         {"type": "box", "layout": "vertical", "paddingAll": "20px", "contents": [
                             {"type": "text", "text": " 婉穎命光所 ", "weight": "bold", "color": "#8b4513", "size": "sm", "align": "center"},
+                            
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                # 外格
+                                # 1. 外格
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                     {"type": "text", "text": "外格", "size": "xs", "color": "#666666", "align": "center"},
                                     {"type": "text", "text": f"{wai} {get_element(wai)}", "weight": "bold", "align": "center", "size": "sm"}
                                 ]},
-                                # 名字區
+                                # 2. 名字與筆畫
                                 {"type": "box", "layout": "vertical", "flex": 3, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                # 天人地格
+                                # 3. 天人地格 (僅五行)
                                 {"type": "box", "layout": "vertical", "flex": 2, "spacing": "xl", "justifyContent": "center", "contents": [
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
                                 ]},
-                                # 出生年與納音
+                                # 4. 出生年與納音
                                 {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "md", "contents": [
-                                    {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}]},
-                                    {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"}, {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}]}
+                                    {"type": "box", "layout": "vertical", "contents": [
+                                        {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
+                                        {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                    ]},
+                                    {"type": "box", "layout": "vertical", "contents": [
+                                        {"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"},
+                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                    ]}
                                 ]}
                             ]},
+                            
                             {"type": "separator", "margin": "xl", "color": "#000000"},
-                            # 總格
-                            {"type": "box", "layout": "vertical", "margin": "md", "contents": [
+                            
+                            # 5. 總格
+                            {"type": "box", "layout": "vertical", "margin": "md", "paddingBottom": "10px", "contents": [
                                 {"type": "text", "text": "總格", "size": "xs", "color": "#666666", "align": "center"},
                                 {"type": "text", "text": f"{zong} {get_element(zong)}", "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
                             ]}
@@ -131,10 +150,11 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
         except Exception as e:
             app.logger.error(f"Error: {e}")
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請確認輸入格式"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請確認輸入格式。"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
+    # 修正 Header 讀取
     signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     try:
