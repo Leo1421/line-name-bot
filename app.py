@@ -19,7 +19,7 @@ try:
 except Exception:
     STROKE_DICT = {}
 
-# --- 2. 根據內政部統計擴充台灣常見複姓與雙姓名單 ---
+# --- 2. 擴充台灣常見複姓與雙姓名單 ---
 DOUBLE_SURNAME_LIST = [
     "張簡", "歐陽", "范姜", "周黃", "張廖", "張李", "張許", "張陳", 
     "劉張", "陳吳", "陳李", "陳黃", "李林", "郭李", "鄭黃", "江謝", 
@@ -75,24 +75,16 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=13"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=14"
 
-            # --- 調整重點：筆畫字體加大為 sm 並微調對齊 ---
+            # 名字與大字級筆畫 (sm)
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
                 name_with_strokes.append({
                     "type": "box", "layout": "horizontal", "contents": [
                         {"type": "text", "text": char, "weight": "bold", "size": "3xl", "flex": 2, "align": "end"},
-                        {
-                            "type": "text", 
-                            "text": f"{stroke}", 
-                            "size": "sm",  # 從 xs 調大到 sm
-                            "flex": 1, 
-                            "color": "#444444", # 顏色稍微加深一點點
-                            "gravity": "center", # 改為置中對齊名字，視覺上更平衡
-                            "margin": "sm"
-                        }
+                        {"type": "text", "text": f"{stroke}", "size": "sm", "flex": 1, "color": "#444444", "gravity": "center", "margin": "sm"}
                     ]
                 })
 
@@ -119,10 +111,16 @@ def handle_message(event):
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm"}]},
                                     {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xs", "color": "#666666"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm"}]}
                                 ]},
-                                # 4. 納音
-                                {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
-                                    {"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"},
-                                    {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                # 4. 出生年與納音
+                                {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "md", "contents": [
+                                    {"type": "box", "layout": "vertical", "contents": [
+                                        {"type": "text", "text": "出生年", "size": "xs", "color": "#666666", "align": "center"},
+                                        {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                    ]},
+                                    {"type": "box", "layout": "vertical", "contents": [
+                                        {"type": "text", "text": "納音", "size": "xs", "color": "#666666", "align": "center"},
+                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm"}
+                                    ]}
                                 ]}
                             ]},
                             
