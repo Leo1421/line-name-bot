@@ -73,8 +73,8 @@ def handle_message(event):
             zong = sum(s_strk) + sum(n_strk)
             n_res = get_nayin_simple(birth_year)
 
-            # 配置顏色與網址
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=65"
+            # 配置
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=70"
             MAIN_TEXT_COLOR = "#4a4a4a" 
             SUB_TEXT_COLOR = "#8e8e8e"  
             ELEMENT_SIZE = "xl" 
@@ -101,29 +101,28 @@ def handle_message(event):
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
-                            "aspectMode": "fill", # 改為 fill 確保完整顯示不被裁切
-                            "position": "absolute",
-                            "width": "100%",
-                            "height": "100%",
-                            "gravity": "center"
+                            "aspectMode": "fill",  # 修正：強制填滿防止裁切
+                            "position": "absolute"
                         },
                         {
                             "type": "box",
                             "layout": "vertical",
-                            "paddingAll": "25px",
+                            "paddingTop": "40px",    # 增加頂部高度
+                            "paddingBottom": "50px", # 增加底部高度，解決三字裁切問題
+                            "paddingStart": "20px",
+                            "paddingEnd": "20px",
                             "contents": [
+                                # 頂部抬頭
                                 {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
                                 
-                                # 加入彈性填充，確保三個字時背景不會縮太短
-                                {"type": "spacer", "size": "md"},
-
+                                # 主內容區
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     # 外格
                                     {"type": "box", "layout": "vertical", "flex": 18, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": ELEMENT_SIZE, "color": MAIN_TEXT_COLOR}
                                     ]},
-                                    # 名字
+                                    # 姓名筆劃
                                     {"type": "box", "layout": "vertical", "flex": 34, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
                                     # 天人地格
                                     {"type": "box", "layout": "vertical", "flex": 24, "spacing": "md", "justifyContent": "center", "contents": [
@@ -140,7 +139,7 @@ def handle_message(event):
                                             {"type": "text", "text": get_element(di), "weight": "bold", "size": ELEMENT_SIZE, "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]}
                                     ]},
-                                    # 出生年與五行
+                                    # 出生年
                                     {"type": "box", "layout": "vertical", "flex": 24, "justifyContent": "center", "spacing": "md", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
                                             {"type": "text", "text": "出生年", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -150,10 +149,11 @@ def handle_message(event):
                                     ]}
                                 ]},
 
-                                {"type": "separator", "margin": "xl", "color": MAIN_TEXT_COLOR},
+                                # 下方間隔
+                                {"type": "separator", "margin": "xxl", "color": "#00000000"},
 
                                 # 總格
-                                {"type": "box", "layout": "vertical", "margin": "lg", "paddingBottom": "20px", "contents": [
+                                {"type": "box", "layout": "vertical", "margin": "lg", "contents": [
                                     {"type": "text", "text": "總格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
                                     {"type": "text", "text": get_element(zong), "weight": "bold", "size": ELEMENT_SIZE, "color": "#2c2c2c", "align": "center"}
                                 ]}
