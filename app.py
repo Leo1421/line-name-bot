@@ -74,7 +74,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # 配置顏色與網址
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=62"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=63"
             MAIN_TEXT_COLOR = "#4a4a4a" 
             SUB_TEXT_COLOR = "#8e8e8e"  
             ELEMENT_SIZE = "xl" # 統一五行字體大小為 xl
@@ -175,3 +175,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
