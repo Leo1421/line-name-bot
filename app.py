@@ -78,28 +78,38 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=100"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=110"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 名字加大 (xxl) 並維持垂直置中對齊
+            # 名字加大至 3xl 並解決對齊問題
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
                 name_with_strokes.append({
                     "type": "box", 
                     "layout": "horizontal", 
-                    "alignItems": "center", 
-                    "justifyContent": "center",
                     "contents": [
-                        # 漢字：設定為 xxl
-                        {"type": "box", "layout": "vertical", "flex": 5, "contents": [
-                            {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": MAIN_TEXT_COLOR, "align": "end"}
-                        ]},
-                        # 筆畫：維持 xxs 保持低調
-                        {"type": "box", "layout": "vertical", "flex": 4, "contents": [
-                            {"type": "text", "text": str(stroke), "size": "xxs", "color": "#aaaaaa", "margin": "md", "align": "start"}
-                        ]}
+                        # 漢字：使用 align: center 確保重心在中間
+                        {
+                            "type": "text", 
+                            "text": char, 
+                            "weight": "bold", 
+                            "size": "3xl", 
+                            "color": MAIN_TEXT_COLOR, 
+                            "align": "center",
+                            "flex": 1
+                        },
+                        # 筆畫數字：使用絕對定位，讓它不影響漢字的對齊
+                        {
+                            "type": "text", 
+                            "text": str(stroke), 
+                            "size": "xxs", 
+                            "color": "#aaaaaa", 
+                            "position": "absolute",
+                            "offsetTop": "18px",   # 根據 3xl 字體高度垂直置中微調
+                            "offsetStart": "68%"   # 將數字推到漢字右側
+                        }
                     ]
                 })
 
@@ -112,7 +122,7 @@ def handle_message(event):
                         {"type": "image", "url": BACKGROUND_URL, "size": "full", "aspectMode": "cover", "position": "absolute"},
                         {
                             "type": "box", "layout": "vertical", "paddingTop": "40px", "paddingBottom": "40px", "contents": [
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
                                 # 四大資訊區
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
@@ -120,7 +130,7 @@ def handle_message(event):
                                         {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]},
-                                    # 名字區 (加大字體版)
+                                    # 名字區 (3xl 完美對齊版)
                                     {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
                                     # 三才格
                                     {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
