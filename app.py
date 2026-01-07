@@ -112,7 +112,7 @@ def handle_message(event):
                             "layout": "vertical",
                             "paddingAll": "25px",
                             "contents": [
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
                                 
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     # 外格
@@ -175,6 +175,7 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
 
