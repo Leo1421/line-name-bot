@@ -71,14 +71,17 @@ def handle_message(event):
             tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
             ren = (s_strk[-1] + n_strk[0])
             di = ((n_strk[0] + 1) if len(name) == 1 else sum(n_strk[:2]))
-            wai = (2 if len(name) == 1 else n_strk[-1] + (1 if len(surname) == 1 else s_strk[0]))
+            wai = (2 if len(name) == 1 else zong - ren + 1 if 'zong' in locals() else 0) # 修正計算邏輯
             zong = sum(s_strk) + sum(n_strk)
+            # 重新修正外格邏輯
+            wai = 2 if len(full_name) == 2 else zong - ren + 1
+            
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=60"
-            MAIN_TEXT_COLOR = "#4a4a4a" # 名字與線條顏色
-            SUB_TEXT_COLOR = "#8e8e8e"  # 標籤顏色
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=65"
+            MAIN_TEXT_COLOR = "#333333" 
+            SUB_TEXT_COLOR = "#999999"  
 
             # 建立直排名字
             name_with_strokes = []
@@ -87,80 +90,77 @@ def handle_message(event):
                 name_with_strokes.append({
                     "type": "box", "layout": "horizontal", "contents": [
                         {"type": "text", "text": char, "weight": "bold", "size": "3xl", "flex": 3, "align": "end", "color": MAIN_TEXT_COLOR},
-                        {"type": "text", "text": f"{stroke}", "size": "sm", "flex": 2, "color": "#7a7a7a", "gravity": "center"}
+                        {"type": "text", "text": f"{stroke}", "size": "xs", "flex": 2, "color": "#888888", "gravity": "top", "margin": "xs"}
                     ]
                 })
 
             flex_contents = {
                 "type": "bubble",
-                "size": "giga",
+                "size": "mega",
                 "body": {
                     "type": "box",
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 1. 背景底圖 (滿版高度與寬度)
+                        # 背景底圖
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
                             "aspectMode": "cover",
-                            "position": "absolute",
-                            "width": "100%",
-                            "height": "100%",
-                            "gravity": "center"
+                            "position": "absolute"
                         },
-                        # 2. 文字內容容器
+                        # 文字內容容器
                         {
                             "type": "box",
                             "layout": "vertical",
-                            "paddingAll": "25px",
+                            "paddingTop": "30px",
+                            "paddingBottom": "30px",
+                            "paddingStart": "20px",
+                            "paddingEnd": "20px",
                             "contents": [
                                 # 抬頭
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
-                                # 四大資訊區
-                                {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    # 外格 (無筆畫)
-                                    {"type": "box", "layout": "vertical", "flex": 15, "justifyContent": "center", "contents": [
-                                        {"type": "text", "text": "外格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "sm", "color": MAIN_TEXT_COLOR}
+                                # 四大資訊區 (橫向佈局)
+                                {"type": "box", "layout": "horizontal", "margin": "xxl", "spacing": "sm", "contents": [
+                                    # 外格
+                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
+                                        {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]},
-                                    # 名字 (直排)
-                                    {"type": "box", "layout": "vertical", "flex": 35, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 天人地格 (標籤與結果皆置中)
-                                    {"type": "box", "layout": "vertical", "flex": 25, "spacing": "xl", "justifyContent": "center", "contents": [
+                                    # 名字 (中心主角)
+                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
+                                    # 天人地格
+                                    {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "天格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(tian), "weight": "bold", "size": "sm", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                            {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                            {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]},
                                         {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "人格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(ren), "weight": "bold", "size": "sm", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                            {"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                            {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]},
                                         {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "地格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(di), "weight": "bold", "size": "sm", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                            {"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                            {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]}
                                     ]},
-                                    # 出生年與納音五行
-                                    {"type": "box", "layout": "vertical", "flex": 25, "justifyContent": "center", "spacing": "md", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "出生年", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "sm", "color": MAIN_TEXT_COLOR}
-                                        ]},
-                                        # 年份對應五行直接顯示
-                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "sm", "color": MAIN_TEXT_COLOR}
+                                    # 出生年與納音
+                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                        {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
+                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]}
                                 ]},
 
-                                # 分隔線 (顏色與名字一致)
-                                {"type": "separator", "margin": "xl", "color": MAIN_TEXT_COLOR},
+                                # 分隔線
+                                {"type": "separator", "margin": "xxl", "color": "#cccccc"},
 
-                                # 總格 (僅保留五行，移除筆畫)
-                                {"type": "box", "layout": "vertical", "margin": "lg", "paddingBottom": "20px", "contents": [
-                                    {"type": "text", "text": "總格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                    {"type": "text", "text": get_element(zong), "weight": "bold", "size": "xl", "color": "#2c2c2c", "align": "center"}
+                                # 總格
+                                {"type": "box", "layout": "vertical", "margin": "xl", "contents": [
+                                    {"type": "text", "text": "總格五行", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                    {"type": "text", "text": get_element(zong), "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
                                 ]}
                             ]
                         }
@@ -168,8 +168,9 @@ def handle_message(event):
                 }
             }
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
-        except Exception:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請輸入正確格式"))
+        except Exception as e:
+            print(f"Error: {e}")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請稍後再試"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
