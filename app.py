@@ -78,7 +78,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=121"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=120"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
@@ -117,57 +117,151 @@ def handle_message(event):
                 "type": "bubble",
                 "size": "mega",
                 "body": {
-                    "type": "box", "layout": "vertical", "paddingAll": "0px",
+                    "type": "box",
+                    "layout": "vertical",
+                    "paddingAll": "0px",
                     "contents": [
-                        {"type": "image", "url": BACKGROUND_URL, "size": "full", "aspectMode": "cover", "position": "absolute"},
+                        # 背景圖：絕對定位，撐滿整個 body
                         {
-                            "type": "box", "layout": "vertical", "paddingTop": "40px", "paddingBottom": "40px", "contents": [
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                            "type": "image",
+                            "url": BACKGROUND_URL,
+                            "size": "full",
+                            "aspectMode": "cover",
+                            "position": "absolute",
+                            "aspectRatio": "3:4"  # 依你的背景圖調整比例
+                        },
+                        # 所有內容：相對定位，疊在背景圖上
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "position": "relative",
+                            "paddingTop": "40px",
+                            "paddingBottom": "40px",
+                            "paddingStart": "16px",
+                            "paddingEnd": "16px",
+                            "contents": [
+                                # 頂部標題
+                                {
+                                    "type": "text",
+                                    "text": " — 婉 穎 命 光 所 — ",
+                                    "weight": "bold",
+                                    "color": "#777777",
+                                    "size": "xs",
+                                    "align": "center",
+                                    "letterSpacing": "2px",
+                                    "margin": "none"
+                                },
                                 
-                                # 四大資訊區
-                                {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
-                                        {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
-                                    ]},
-                                    # 名字區 (xxl 對齊版)
-                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 三才格
-                                    {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
-                                    ]},
-                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
-                                        {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                        {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
-                                        {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
-                                    ]}
-                                ]},
+                                # 四大資訊區 + 出生年
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "margin": "xxl",
+                                    "contents": [
+                                        # 外格
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "justifyContent": "center",
+                                            "contents": [
+                                                {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                            ]
+                                        },
+                                        # 名字區
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 2,
+                                            "justifyContent": "center",
+                                            "spacing": "sm",
+                                            "contents": name_with_strokes
+                                        },
+                                        # 三才格
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "spacing": "md",
+                                            "justifyContent": "center",
+                                            "contents": [
+                                                {
+                                                    "type": "box",
+                                                    "layout": "vertical",
+                                                    "contents": [
+                                                        {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                        {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "box",
+                                                    "layout": "vertical",
+                                                    "contents": [
+                                                        {"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                        {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "box",
+                                                    "layout": "vertical",
+                                                    "contents": [
+                                                        {"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                        {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        # 出生年 + 納音
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "justifyContent": "center",
+                                            "spacing": "sm",
+                                            "contents": [
+                                                {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
+                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                            ]
+                                        }
+                                    ]
+                                },
 
                                 # 實體分隔線
                                 {
-                                    "type": "box", "layout": "vertical", "margin": "xxl", "height": "1px", 
-                                    "backgroundColor": MAIN_TEXT_COLOR, "width": "80%", "offsetStart": "10%"
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "margin": "xxl",
+                                    "height": "1px",
+                                    "backgroundColor": MAIN_TEXT_COLOR,
+                                    "width": "80%",
+                                    "offsetStart": "10%"
                                 },
 
                                 # 總格
-                                {"type": "box", "layout": "vertical", "margin": "xl", "contents": [
-                                    {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                    {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
-                                ]}
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "margin": "xl",
+                                    "contents": [
+                                        {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                        {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
+                                    ]
+                                }
                             ]
                         }
                     ]
                 }
             }
+            
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
         except Exception as e:
             logger.error(f"Error: {e}")
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers.get('X-Line-Signature')
+    signature = request.headers['X-Line-Signature']
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
@@ -177,4 +271,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
