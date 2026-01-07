@@ -58,7 +58,6 @@ def handle_message(event):
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
-            # 姓名拆解邏輯
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name = full_name[:2], full_name[2:]
             else:
@@ -67,31 +66,32 @@ def handle_message(event):
             s_strk = [get_stroke_count(c) for c in surname]
             n_strk = [get_stroke_count(c) for c in name]
             
-            # 五格計算
+            zong = sum(s_strk) + sum(n_strk)
             tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
             ren = (s_strk[-1] + n_strk[0])
             di = ((n_strk[0] + 1) if len(name) == 1 else sum(n_strk[:2]))
-            wai = (2 if len(name) == 1 else zong - ren + 1 if 'zong' in locals() else 0) # 修正計算邏輯
-            zong = sum(s_strk) + sum(n_strk)
-            # 重新修正外格邏輯
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=65"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=75"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 建立直排名字
+            # 建立直排名字 (筆畫置中對齊優化)
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
                 name_with_strokes.append({
-                    "type": "box", "layout": "horizontal", "contents": [
-                        {"type": "text", "text": char, "weight": "bold", "size": "3xl", "flex": 3, "align": "end", "color": MAIN_TEXT_COLOR},
-                        {"type": "text", "text": f"{stroke}", "size": "xs", "flex": 2, "color": "#888888", "gravity": "top", "margin": "xs"}
-                    ]
+                    "type": "box", 
+                    "layout": "horizontal", 
+                    "alignItems": "center",  # 這行是關鍵：讓字跟筆畫垂直置中
+                    "contents": [
+                        {"type": "text", "text": char, "weight": "bold", "size": "xl", "flex": 0, "color": MAIN_TEXT_COLOR},
+                        {"type": "text", "text": f"{stroke}", "size": "xxs", "flex": 0, "color": "#aaaaaa", "margin": "sm"}
+                    ],
+                    "justifyContent": "center" # 讓整個組合在中間欄位置中
                 })
 
             flex_contents = {
@@ -102,7 +102,6 @@ def handle_message(event):
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 背景底圖
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
@@ -110,28 +109,27 @@ def handle_message(event):
                             "aspectMode": "cover",
                             "position": "absolute"
                         },
-                        # 文字內容容器
                         {
                             "type": "box",
                             "layout": "vertical",
-                            "paddingTop": "30px",
-                            "paddingBottom": "30px",
-                            "paddingStart": "20px",
-                            "paddingEnd": "20px",
+                            "paddingTop": "35px",
+                            "paddingBottom": "35px",
+                            "paddingStart": "15px",
+                            "paddingEnd": "15px",
                             "contents": [
                                 # 抬頭
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
-                                # 四大資訊區 (橫向佈局)
-                                {"type": "box", "layout": "horizontal", "margin": "xxl", "spacing": "sm", "contents": [
+                                # 四大資訊區
+                                {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     # 外格
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]},
-                                    # 名字 (中心主角)
-                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 天人地格
+                                    # 名字區 (加大 flex 確保置中空間)
+                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "md", "contents": name_with_strokes},
+                                    # 三才格
                                     {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
                                             {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -146,7 +144,7 @@ def handle_message(event):
                                             {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]}
                                     ]},
-                                    # 出生年與納音
+                                    # 年份
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
                                         {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
@@ -154,13 +152,12 @@ def handle_message(event):
                                     ]}
                                 ]},
 
-                                # 分隔線
-                                {"type": "separator", "margin": "xxl", "color": "#cccccc"},
+                                {"type": "separator", "margin": "xxl", "color": "#eeeeee"},
 
                                 # 總格
                                 {"type": "box", "layout": "vertical", "margin": "xl", "contents": [
-                                    {"type": "text", "text": "總格五行", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                    {"type": "text", "text": get_element(zong), "weight": "bold", "size": "xl", "color": "#000000", "align": "center"}
+                                    {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                    {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
                                 ]}
                             ]
                         }
@@ -168,13 +165,12 @@ def handle_message(event):
                 }
             }
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
-        except Exception as e:
-            print(f"Error: {e}")
+        except Exception:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請稍後再試"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers.get('X-Line-Signature')
+    signature = request.headers.get('X-Signature') # 修正為一般常規 header 獲取方式
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
