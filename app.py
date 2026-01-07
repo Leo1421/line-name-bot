@@ -23,7 +23,7 @@ try:
 except:
     STROKE_DICT = {}
 
-DOUBLE_SURNAME_LIST = ["張簡", "歐陽", "司馬", "諸葛", "司徒", "上官", "皇甫", "范姜", "長孫", "尉遲"]
+DOUBLE_SURNAME_LIST = ["張簡", "歐陽", "司馬", "諸葛", "司徒", "上官", "皇甫", "范姜", "長孫", "尉遲", "左丘", "東郭", "南門", "呼延"]
 
 def get_stroke(char): return STROKE_DICT.get(char, 10)
 def get_el(n):
@@ -47,7 +47,7 @@ def handle_message(event):
     year_str = match.group(2)
 
     try:
-        # 姓名拆解邏輯
+        # 1. 姓名拆解
         if (len(name_str) >= 3 and name_str[:2] in DOUBLE_SURNAME_LIST) or len(name_str) == 4:
             s_part, n_part = name_str[:2], name_str[2:]
         else:
@@ -56,14 +56,19 @@ def handle_message(event):
         s_stk = [get_stroke(c) for c in s_part]
         n_stk = [get_stroke(c) for c in n_part] if n_part else [10]
         
-        # 五格計算
+        # 2. 五格計算 (修正順序)
+        zong = sum(s_stk) + sum(n_stk)
         tian = (sum(s_stk) if len(s_part) > 1 else s_stk[0] + 1)
         ren = (s_stk[-1] + n_stk[0])
-        di = (n_stk[0] + 1 if len(n_part) <= 1 else sum(n_stk[:2]))
-        wai = (zong - ren + 1) if len(name_str) >= 3 else 2 # 簡化外格算法避免負數
-        zong = sum(s_stk) + sum(n_stk)
+        di = (n_stk[0] + 1 if len(n_part) == 1 else sum(n_stk))
         
-        # 建立姓名筆劃元件
+        # 外格正確算法：總格 - 人格 + (假添一，若單姓單名則加2)
+        if len(s_part) == 1 and len(n_part) == 1:
+            wai = 2
+        else:
+            wai = zong - ren + 1
+        
+        # 3. 建立姓名筆劃元件
         name_boxes = []
         for c in name_str:
             name_boxes.append({
@@ -78,9 +83,9 @@ def handle_message(event):
             "body": {
                 "type": "box", "layout": "vertical", "paddingAll": "0px",
                 "contents": [
-                    {"type": "image", "url": "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=101", "size": "full", "aspectMode": "fill", "position": "absolute"},
+                    {"type": "image", "url": "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=105", "size": "full", "aspectMode": "fill", "position": "absolute"},
                     {
-                        "type": "box", "layout": "vertical", "paddingTop": "40px", "paddingBottom": "60px", "paddingStart": "20px", "paddingEnd": "20px",
+                        "type": "box", "layout": "vertical", "paddingTop": "40px", "paddingBottom": "65px", "paddingStart": "20px", "paddingEnd": "20px",
                         "contents": [
                             {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center"},
                             {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
@@ -110,7 +115,7 @@ def handle_message(event):
                 ]
             }
         }
-        line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text="鑑定結果", contents=flex_msg))
+        line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{name_str}鑑定結果", contents=flex_msg))
     except Exception as e:
         logger.error(f"Flex構建失敗: {e}")
 
