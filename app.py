@@ -97,7 +97,7 @@ def handle_message(event):
 
             flex_contents = {
                 "type": "bubble",
-                "size": "giga",
+                "size": "mega",
                 "body": {
                     "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
@@ -163,6 +163,7 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
 
 
