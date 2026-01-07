@@ -1,12 +1,17 @@
 import os
 import json
 import re
+import logging
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, FlexSendMessage, TextSendMessage
 from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
+
+# 設定 Log，方便你在 Heroku/Render 看到具體報錯
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # --- 環境變數設定 ---
 line_bot_api = LineBotApi(os.environ.get('CHANNEL_ACCESS_TOKEN'))
@@ -58,78 +63,61 @@ def handle_message(event):
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
+            # 姓名拆解
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
-                surname, name = full_name[:2], full_name[2:]
+                surname, name_part = full_name[:2], full_name[2:]
             else:
-                surname, name = full_name[:1], full_name[1:]
+                surname, name_part = full_name[:1], full_name[1:]
 
             s_strk = [get_stroke_count(c) for c in surname]
-            n_strk = [get_stroke_count(c) for c in name]
+            n_strk = [get_stroke_count(c) for c in name_part] if name_part else [10]
             
+            # 計算五格
             zong = sum(s_strk) + sum(n_strk)
             tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
             ren = (s_strk[-1] + n_strk[0])
-            di = ((n_strk[0] + 1) if len(name) == 1 else sum(n_strk[:2]))
+            di = ((n_strk[0] + 1) if len(name_part) <= 1 else sum(n_strk))
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=75"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=80"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 建立直排名字 (筆畫置中對齊優化)
+            # 直排名字 (筆畫垂直置中)
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
                 name_with_strokes.append({
                     "type": "box", 
                     "layout": "horizontal", 
-                    "alignItems": "center",  # 這行是關鍵：讓字跟筆畫垂直置中
+                    "alignItems": "center",
                     "contents": [
                         {"type": "text", "text": char, "weight": "bold", "size": "xl", "flex": 0, "color": MAIN_TEXT_COLOR},
-                        {"type": "text", "text": f"{stroke}", "size": "xxs", "flex": 0, "color": "#aaaaaa", "margin": "sm"}
+                        {"type": "text", "text": str(stroke), "size": "xxs", "flex": 0, "color": "#aaaaaa", "margin": "sm"}
                     ],
-                    "justifyContent": "center" # 讓整個組合在中間欄位置中
+                    "justifyContent": "center"
                 })
 
             flex_contents = {
                 "type": "bubble",
                 "size": "mega",
                 "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "paddingAll": "0px",
+                    "type": "box", "layout": "vertical", "paddingAll": "0px",
                     "contents": [
+                        {"type": "image", "url": BACKGROUND_URL, "size": "full", "aspectMode": "cover", "position": "absolute"},
                         {
-                            "type": "image",
-                            "url": BACKGROUND_URL,
-                            "size": "full",
-                            "aspectMode": "cover",
-                            "position": "absolute"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "paddingTop": "35px",
-                            "paddingBottom": "35px",
-                            "paddingStart": "15px",
-                            "paddingEnd": "15px",
+                            "type": "box", "layout": "vertical", "paddingTop": "35px", "paddingBottom": "35px", "paddingStart": "15px", "paddingEnd": "15px",
                             "contents": [
-                                # 抬頭
-                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
-                                
-                                # 四大資訊區
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
-                                    # 外格
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]},
-                                    # 名字區 (加大 flex 確保置中空間)
                                     {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "md", "contents": name_with_strokes},
-                                    # 三才格
                                     {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
                                             {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -144,19 +132,15 @@ def handle_message(event):
                                             {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
                                         ]}
                                     ]},
-                                    # 年份
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
                                         {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                        {"type": "text", "text": f"{birth_year if birth_year else '--'}", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
-                                        {"type": "text", "text": f"{n_res if n_res else '--'}", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                        {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
+                                        {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]}
                                 ]},
-
                                 {"type": "separator", "margin": "xxl", "color": "#eeeeee"},
-
-                                # 總格
                                 {"type": "box", "layout": "vertical", "margin": "xl", "contents": [
-                                    {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                    {"type": "text", "text": "總格五行", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                     {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
                                 ]}
                             ]
@@ -164,18 +148,24 @@ def handle_message(event):
                     ]
                 }
             }
-            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
-        except Exception:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析失敗，請稍後再試"))
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定結果", contents=flex_contents))
+        except Exception as e:
+            logger.error(f"Error in handle_message: {e}")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析過程發生錯誤，請檢查格式"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers.get('X-Signature') # 修正為一般常規 header 獲取方式
+    # 這裡必須是 X-Line-Signature
+    signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
+        logger.error("Invalid signature. Check your channel secret/access token.")
         abort(400)
+    except Exception as e:
+        logger.error(f"Callback error: {e}")
+        abort(500)
     return 'OK'
 
 if __name__ == "__main__":
