@@ -143,7 +143,7 @@ def handle_message(event):
                                 # 頂部標題
                                 {
                                     "type": "text",
-                                    "text": " — 婉 穎 命 光 所 — ",
+                                    "text": "  婉 穎 命 光 所  ",
                                     "weight": "bold",
                                     "color": "#777777",
                                     "size": "xs",
@@ -271,3 +271,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
