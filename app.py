@@ -72,32 +72,32 @@ def handle_message(event):
         di = sum(n_stk) if len(n_part) > 1 else n_stk[0] + 1
         wai = 2 if len(name_str) == 2 else zong - ren + 1
         
-        # 3. 構建名字區塊 (移除 gravity，改用 alignItems 處理對齊)
+        # 3. 美化名字區塊 (垂直排列：字在上有力，筆畫在下低調)
         name_boxes = []
         for c in name_str:
             name_boxes.append({
                 "type": "box", 
-                "layout": "horizontal", 
-                "alignItems": "center", # 垂直置中
+                "layout": "vertical", 
+                "alignItems": "center",
                 "contents": [
-                    {"type": "text", "text": c, "weight": "bold", "size": "xxl", "flex": 3, "align": "end", "color": "#4a4a4a"},
-                    {"type": "text", "text": str(get_stroke(c)), "size": "sm", "flex": 2, "color": "#7a7a7a", "align": "start", "margin": "sm"}
+                    {"type": "text", "text": c, "weight": "bold", "size": "3xl", "color": "#333333"},
+                    {"type": "text", "text": str(get_stroke(c)), "size": "xxs", "color": "#aaaaaa", "margin": "xs"}
                 ]
             })
 
-        # 4. 構建完整 Flex JSON
+        # 4. 構建 Flex Message (精緻版)
         flex_contents = {
             "type": "bubble",
-            "size": "giga",
+            "size": "mega",
             "body": {
                 "type": "box",
                 "layout": "vertical",
                 "paddingAll": "0px",
                 "contents": [
-                    # 背景圖 (aspectMode: cover 是正確的)
+                    # 背景圖
                     {
                         "type": "image",
-                        "url": "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=110",
+                        "url": "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=112",
                         "size": "full",
                         "aspectMode": "cover",
                         "position": "absolute"
@@ -106,41 +106,71 @@ def handle_message(event):
                     {
                         "type": "box",
                         "layout": "vertical",
-                        "paddingTop": "45px",
-                        "paddingBottom": "80px", # 增加底部空間，防止裁切
-                        "paddingStart": "20px",
-                        "paddingEnd": "20px",
+                        "paddingTop": "25px",   
+                        "paddingBottom": "25px",
+                        "paddingStart": "25px",
+                        "paddingEnd": "25px",
                         "contents": [
-                            # 標題
-                            {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center"},
+                            # 頂部標題
+                            {"type": "text", "text": "— 婉 穎 命 光 所 —", "weight": "bold", "color": "#B08D55", "size": "xs", "align": "center", "letterSpacing": "1px"},
                             
-                            # 核心數據區
-                            {"type": "box", "layout": "horizontal", "margin": "xxl", "alignItems": "flex-start", "contents": [
-                                # 外格
-                                {"type": "box", "layout": "vertical", "flex": 1, "contents": [
-                                    {"type": "text", "text": "外格", "size": "xs", "color": "#8e8e8e", "align": "center"},
-                                    {"type": "text", "text": get_el(wai), "weight": "bold", "size": "xl", "align": "center"}
+                            # 分隔線
+                            {"type": "separator", "margin": "lg", "color": "#E5E5E5"},
+
+                            # 姓名顯示區 (置中強調)
+                            {"type": "box", "layout": "horizontal", "justifyContent": "center", "margin": "xl", "spacing": "lg", "contents": name_boxes},
+
+                            # 分隔線
+                            {"type": "separator", "margin": "xl", "color": "#E5E5E5"},
+
+                            # 核心數據區 (左右兩欄佈局)
+                            {"type": "box", "layout": "horizontal", "margin": "xl", "contents": [
+                                # 左欄：三才 (天人地)
+                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "sm", "contents": [
+                                    # 天格
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "天格", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_el(tian), "weight": "bold", "size": "md", "color": "#9B7C48", "flex": 1, "align": "end"}
+                                    ]},
+                                    # 人格
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "人格", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_el(ren), "weight": "bold", "size": "md", "color": "#9B7C48", "flex": 1, "align": "end"}
+                                    ]},
+                                    # 地格
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "地格", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_el(di), "weight": "bold", "size": "md", "color": "#9B7C48", "flex": 1, "align": "end"}
+                                    ]}
                                 ]},
-                                # 名字列表
-                                {"type": "box", "layout": "vertical", "flex": 2, "spacing": "sm", "contents": name_boxes},
-                                # 三才
-                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "contents": [
-                                    {"type": "text", "text": f"天{get_el(tian)}", "weight": "bold", "size": "lg", "align": "center"},
-                                    {"type": "text", "text": f"人{get_el(ren)}", "weight": "bold", "size": "lg", "align": "center"},
-                                    {"type": "text", "text": f"地{get_el(di)}", "weight": "bold", "size": "lg", "align": "center"}
-                                ]},
-                                # 年份
-                                {"type": "box", "layout": "vertical", "flex": 1, "contents": [
-                                    {"type": "text", "text": "出生", "size": "xs", "color": "#8e8e8e", "align": "center"},
-                                    {"type": "text", "text": f"{year_str if year_str else '--'}", "size": "xs", "align": "center"},
-                                    {"type": "text", "text": get_ny(year_str), "weight": "bold", "size": "lg", "align": "center"}
+                                
+                                # 中間垂直分隔線
+                                {"type": "separator", "color": "#E5E5E5", "margin": "lg"},
+
+                                # 右欄：外格、總格、出生年
+                                {"type": "box", "layout": "vertical", "flex": 1, "spacing": "sm", "margin": "lg", "contents": [
+                                    # 外格
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "外格", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_el(wai), "weight": "bold", "size": "md", "color": "#9B7C48", "flex": 1, "align": "end"}
+                                    ]},
+                                    # 總格 (強調)
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "總格", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_el(zong), "weight": "bold", "size": "md", "color": "#D35400", "flex": 1, "align": "end"} # 總格用橘紅色強調
+                                    ]},
+                                    # 納音
+                                    {"type": "box", "layout": "baseline", "contents": [
+                                        {"type": "text", "text": "納音", "size": "xs", "color": "#999999", "flex": 2},
+                                        {"type": "text", "text": get_ny(year_str), "weight": "bold", "size": "md", "color": "#555555", "flex": 1, "align": "end"}
+                                    ]}
                                 ]}
                             ]},
                             
-                            # 底部總格 (使用 margin 推開，不使用 spacer)
-                            {"type": "box", "layout": "vertical", "margin": "xxl", "contents": [
-                                {"type": "text", "text": "總格", "size": "xs", "color": "#8e8e8e", "align": "center"},
-                                {"type": "text", "text": get_el(zong), "weight": "bold", "size": "xl", "align": "center"}
+                            # 底部裝飾
+                            {"type": "separator", "margin": "xl", "color": "#E5E5E5"},
+                             {"type": "box", "layout": "vertical", "margin": "md", "contents": [
+                                {"type": "text", "text": f"出生年：{year_str if year_str else '未知'}", "size": "xxs", "color": "#bbbbbb", "align": "center"}
                             ]}
                         ]
                     }
@@ -148,10 +178,10 @@ def handle_message(event):
             }
         }
 
-        # 重要：印出 JSON 以便除錯
+        # 記錄 JSON 結構，萬一還有錯可以查
         logger.info(f"Flex Payload: {json.dumps(flex_contents, ensure_ascii=False)}")
         
-        line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{name_str}鑑定結果", contents=flex_contents))
+        line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{name_str} 命理分析", contents=flex_contents))
 
     except Exception as e:
         logger.error(f"發生錯誤: {e}")
