@@ -78,7 +78,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=86"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=90"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
@@ -99,13 +99,33 @@ def handle_message(event):
                 "type": "bubble",
                 "size": "mega",
                 "body": {
-                    "type": "box", "layout": "vertical", "paddingAll": "0px",
+                    "type": "box",
+                    "layout": "vertical",
+                    "paddingAll": "0px",
                     "contents": [
-                        {"type": "image", "url": BACKGROUND_URL, "size": "full", "aspectMode": "cover", "position": "absolute"},
+                        # 1. 底層背景圖：確保 position 是 absolute 且大小是 full
                         {
-                            "type": "box", "layout": "vertical", "paddingTop": "35px", "paddingBottom": "35px", "paddingStart": "15px", "paddingEnd": "15px",
+                            "type": "image",
+                            "url": BACKGROUND_URL,
+                            "size": "full",
+                            "aspectMode": "cover",
+                            "aspectRatio": "1:1.3", # 根據你的背景圖比例調整，確保高度鋪滿
+                            "position": "absolute",
+                            "offsetTop": "0px",
+                            "offsetBottom": "0px",
+                            "offsetStart": "0px",
+                            "offsetEnd": "0px"
+                        },
+                        # 2. 上層內容：浮在背景之上
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "paddingTop": "40px",
+                            "paddingBottom": "40px",
+                            "paddingStart": "20px",
+                            "paddingEnd": "20px",
                             "contents": [
-                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
                                 # 四大區塊
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
@@ -126,15 +146,15 @@ def handle_message(event):
                                     ]}
                                 ]},
 
-                                # 自定義實體分隔線 (使用 box 模擬)
+                                # 自定義實體分隔線
                                 {
                                     "type": "box", 
                                     "layout": "vertical", 
                                     "margin": "xxl", 
                                     "height": "1px", 
-                                    "backgroundColor": MAIN_TEXT_COLOR, # 這裡使用跟名字一樣的深灰色
-                                    "width": "90%",
-                                    "offsetStart": "5%"
+                                    "backgroundColor": MAIN_TEXT_COLOR,
+                                    "width": "80%",
+                                    "offsetStart": "10%"
                                 },
 
                                 # 總格
@@ -163,7 +183,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
-
-
-
