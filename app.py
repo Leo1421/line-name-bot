@@ -9,7 +9,6 @@ from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
 
-# 設定 Log，方便你在 Heroku/Render 看到具體報錯
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,6 @@ try:
 except Exception:
     STROKE_DICT = {}
 
-# --- 2. 複姓名單 ---
 DOUBLE_SURNAME_LIST = [
     "張簡", "歐陽", "范姜", "周黃", "張廖", "張李", "張許", "張陳", 
     "劉張", "陳吳", "陳李", "陳黃", "李林", "郭李", "鄭黃", "江謝", 
@@ -63,7 +61,6 @@ def handle_message(event):
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
-            # 姓名拆解
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name_part = full_name[:2], full_name[2:]
             else:
@@ -72,7 +69,6 @@ def handle_message(event):
             s_strk = [get_stroke_count(c) for c in surname]
             n_strk = [get_stroke_count(c) for c in name_part] if name_part else [10]
             
-            # 計算五格
             zong = sum(s_strk) + sum(n_strk)
             tian = (sum(s_strk) if len(surname) > 1 else s_strk[0] + 1)
             ren = (s_strk[-1] + n_strk[0])
@@ -82,18 +78,16 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=80"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=85"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 直排名字 (筆畫垂直置中)
+            # 名字與筆畫置中
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
                 name_with_strokes.append({
-                    "type": "box", 
-                    "layout": "horizontal", 
-                    "alignItems": "center",
+                    "type": "box", "layout": "horizontal", "alignItems": "center",
                     "contents": [
                         {"type": "text", "text": char, "weight": "bold", "size": "xl", "flex": 0, "color": MAIN_TEXT_COLOR},
                         {"type": "text", "text": str(stroke), "size": "xxs", "flex": 0, "color": "#aaaaaa", "margin": "sm"}
@@ -111,7 +105,9 @@ def handle_message(event):
                         {
                             "type": "box", "layout": "vertical", "paddingTop": "35px", "paddingBottom": "35px", "paddingStart": "15px", "paddingEnd": "15px",
                             "contents": [
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                
+                                # 四大區塊
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
                                         {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -119,18 +115,9 @@ def handle_message(event):
                                     ]},
                                     {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "md", "contents": name_with_strokes},
                                     {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
-                                        {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                        ]},
-                                        {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                        ]},
-                                        {"type": "box", "layout": "vertical", "contents": [
-                                            {"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                        ]}
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
                                     ]},
                                     {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
                                         {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -138,7 +125,19 @@ def handle_message(event):
                                         {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                     ]}
                                 ]},
-                                {"type": "separator", "margin": "xxl", "color": "#eeeeee"},
+
+                                # 自定義實體分隔線 (使用 box 模擬)
+                                {
+                                    "type": "box", 
+                                    "layout": "vertical", 
+                                    "margin": "xxl", 
+                                    "height": "1px", 
+                                    "backgroundColor": MAIN_TEXT_COLOR, # 這裡使用跟名字一樣的深灰色
+                                    "width": "90%",
+                                    "offsetStart": "5%"
+                                },
+
+                                # 總格
                                 {"type": "box", "layout": "vertical", "margin": "xl", "contents": [
                                     {"type": "text", "text": "總格五行", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                     {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
@@ -150,22 +149,16 @@ def handle_message(event):
             }
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定結果", contents=flex_contents))
         except Exception as e:
-            logger.error(f"Error in handle_message: {e}")
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="解析過程發生錯誤，請檢查格式"))
+            logger.error(f"Error: {e}")
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    # 這裡必須是 X-Line-Signature
     signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
-        logger.error("Invalid signature. Check your channel secret/access token.")
         abort(400)
-    except Exception as e:
-        logger.error(f"Callback error: {e}")
-        abort(500)
     return 'OK'
 
 if __name__ == "__main__":
