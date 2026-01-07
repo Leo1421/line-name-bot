@@ -77,7 +77,7 @@ def handle_message(event):
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=65"
             MAIN_TEXT_COLOR = "#4a4a4a" 
             SUB_TEXT_COLOR = "#8e8e8e"  
-            ELEMENT_SIZE = "xl" # 統一五行字體大小為 xl
+            ELEMENT_SIZE = "xl" 
 
             name_with_strokes = []
             for char in full_name:
@@ -101,7 +101,7 @@ def handle_message(event):
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
-                            "aspectMode": "cover",
+                            "aspectMode": "fill", # 改為 fill 確保完整顯示不被裁切
                             "position": "absolute",
                             "width": "100%",
                             "height": "100%",
@@ -112,8 +112,11 @@ def handle_message(event):
                             "layout": "vertical",
                             "paddingAll": "25px",
                             "contents": [
-                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#6d6d6d", "size": "sm", "align": "center", "letterSpacing": "2px"},
                                 
+                                # 加入彈性填充，確保三個字時背景不會縮太短
+                                {"type": "spacer", "size": "md"},
+
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
                                     # 外格
                                     {"type": "box", "layout": "vertical", "flex": 18, "justifyContent": "center", "contents": [
@@ -122,7 +125,7 @@ def handle_message(event):
                                     ]},
                                     # 名字
                                     {"type": "box", "layout": "vertical", "flex": 34, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                    # 天人地格 (字體放大至 xl)
+                                    # 天人地格
                                     {"type": "box", "layout": "vertical", "flex": 24, "spacing": "md", "justifyContent": "center", "contents": [
                                         {"type": "box", "layout": "vertical", "contents": [
                                             {"type": "text", "text": "天格", "size": "xs", "color": SUB_TEXT_COLOR, "align": "center"},
@@ -175,7 +178,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
-
-
-
