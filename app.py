@@ -152,7 +152,7 @@ def handle_message(event):
                                     "margin": "none"
                                 },
                                 
-                                # 四大資訊區 + 出生年
+                                # 上半部：四大資訊區 + 出生年
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
@@ -228,25 +228,34 @@ def handle_message(event):
                                     ]
                                 },
 
-                                # 實體分隔線（拉長 + 縮小間距）
+                                # 下半部：分隔線 + 總格（合併成一個垂直區塊，正對齊上半部）
                                 {
                                     "type": "box",
                                     "layout": "vertical",
-                                    "margin": "xl",      # 縮小，讓總格往上拉
-                                    "height": "1px",
-                                    "backgroundColor": MAIN_TEXT_COLOR,
-                                    "width": "90%",      # 拉長
-                                    "offsetStart": "5%"  # 往兩側延伸
-                                },
-
-                                # 總格（貼近分隔線）
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "margin": "md",      # 縮小，讓總格更貼近分隔線
+                                    "margin": "xl",
+                                    "justifyContent": "center",
                                     "contents": [
-                                        {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                        {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
+                                        # 分隔線
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "margin": "none",
+                                            "height": "1px",
+                                            "backgroundColor": MAIN_TEXT_COLOR,
+                                            "width": "90%",
+                                            "offsetStart": "5%"
+                                        },
+                                        # 總格
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "margin": "sm",
+                                            "justifyContent": "center",
+                                            "contents": [
+                                                {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
+                                            ]
+                                        }
                                     ]
                                 }
                             ]
