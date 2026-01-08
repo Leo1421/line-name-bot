@@ -22,9 +22,9 @@ except Exception:
     STROKE_DICT = {}
 
 DOUBLE_SURNAME_LIST = [
-    "張簡","歐陽","范姜","周黃","張廖","張李","張許","張陳",
-    "諸葛","司馬","司徒","上官","端木","皇甫","尉遲","公孫",
-    "令狐","鍾離","宇文","東方","南宮","長孫","夏侯","濮陽"
+    "張簡","歐陽","范姜","諸葛","司馬","司徒","上官",
+    "端木","皇甫","尉遲","公孫","令狐","鍾離","宇文",
+    "東方","南宮","長孫","夏侯","濮陽"
 ]
 
 def get_stroke_count(c):
@@ -36,13 +36,13 @@ def get_element(n):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text.strip()
-    match = re.match(r"([^\d\+\s\-]+)[\+\s\-]*(\d*)", msg)
+    match = re.match(r"([^\d\+\s\-]+)", msg)
     if not match:
         return
 
     full_name = match.group(1)
 
-    if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST):
+    if len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST:
         surname, name_part = full_name[:2], full_name[2:]
     else:
         surname, name_part = full_name[:1], full_name[1:]
@@ -65,82 +65,79 @@ def handle_message(event):
         ]
     } for c in full_name]
 
-    flex = {
+    flex_contents = {
         "type": "bubble",
         "size": "mega",
         "body": {
             "type": "box",
             "layout": "vertical",
             "contents": [
-
-                # ===== 上排 =====
                 {
+                    # 🔒 wrapper，separator 一定要住這裡
                     "type": "box",
-                    "layout": "horizontal",
+                    "layout": "vertical",
                     "contents": [
+
+                        # ===== 上排 =====
                         {
                             "type": "box",
-                            "layout": "vertical",
-                            "flex": 1,
+                            "layout": "horizontal",
                             "contents": [
-                                {"type":"text","text":"外格","size":"xxs","align":"center"},
-                                {"type":"text","text":get_element(wai),"weight":"bold","align":"center"}
+                                {
+                                    "type":"box","layout":"vertical","flex":1,
+                                    "contents":[
+                                        {"type":"text","text":"外格","size":"xxs","align":"center"},
+                                        {"type":"text","text":get_element(wai),"weight":"bold","align":"center"}
+                                    ]
+                                },
+                                {
+                                    "type":"box","layout":"vertical","flex":2,
+                                    "contents": name_boxes
+                                },
+                                {
+                                    "type":"box","layout":"vertical","flex":1,
+                                    "contents":[
+                                        {"type":"text","text":"天格","size":"xxs","align":"center"},
+                                        {"type":"text","text":get_element(tian),"weight":"bold","align":"center"},
+                                        {"type":"text","text":"人格","size":"xxs","align":"center"},
+                                        {"type":"text","text":get_element(ren),"weight":"bold","align":"center"},
+                                        {"type":"text","text":"地格","size":"xxs","align":"center"},
+                                        {"type":"text","text":get_element(di),"weight":"bold","align":"center"}
+                                    ]
+                                },
+                                {
+                                    "type":"box","layout":"vertical","flex":1,
+                                    "contents":[
+                                        {"type":"text","text":"出生年","size":"xxs","align":"center"},
+                                        {"type":"text","text":"--","align":"center"}
+                                    ]
+                                }
                             ]
                         },
+
+                        # ===== 分隔線（合法位置）=====
                         {
-                            "type": "box",
-                            "layout": "vertical",
-                            "flex": 2,
-                            "contents": name_boxes
+                            "type": "separator",
+                            "margin": "lg"
                         },
+
+                        # ===== 下排（只在三才欄顯示總格）=====
                         {
                             "type": "box",
-                            "layout": "vertical",
-                            "flex": 1,
+                            "layout": "horizontal",
                             "contents": [
-                                {"type":"text","text":"天格","size":"xxs","align":"center"},
-                                {"type":"text","text":get_element(tian),"weight":"bold","align":"center"},
-                                {"type":"text","text":"人格","size":"xxs","align":"center"},
-                                {"type":"text","text":get_element(ren),"weight":"bold","align":"center"},
-                                {"type":"text","text":"地格","size":"xxs","align":"center"},
-                                {"type":"text","text":get_element(di),"weight":"bold","align":"center"}
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "flex": 1,
-                            "contents": [
-                                {"type":"text","text":"出生年","size":"xxs","align":"center"},
-                                {"type":"text","text":"--","align":"center"}
+                                {"type":"box","layout":"vertical","flex":1,"contents":[]},
+                                {"type":"box","layout":"vertical","flex":2,"contents":[]},
+                                {
+                                    "type":"box","layout":"vertical","flex":1,
+                                    "contents":[
+                                        {"type":"text","text":"總格","size":"xxs","align":"center"},
+                                        {"type":"text","text":get_element(zong),"weight":"bold","align":"center"}
+                                    ]
+                                },
+                                {"type":"box","layout":"vertical","flex":1,"contents":[]}
                             ]
                         }
-                    ]
-                },
-
-                # ===== 分隔線（整排）=====
-                {
-                    "type": "separator",
-                    "margin": "lg"
-                },
-
-                # ===== 下排：只在三才欄出現總格 =====
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "contents": [
-                        {"type":"box","layout":"vertical","flex":1,"contents":[]},
-                        {"type":"box","layout":"vertical","flex":2,"contents":[]},
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "flex": 1,
-                            "contents": [
-                                {"type":"text","text":"總格","size":"xxs","align":"center"},
-                                {"type":"text","text":get_element(zong),"weight":"bold","align":"center"}
-                            ]
-                        },
-                        {"type":"box","layout":"vertical","flex":1,"contents":[]}
                     ]
                 }
             ]
@@ -149,15 +146,18 @@ def handle_message(event):
 
     line_bot_api.reply_message(
         event.reply_token,
-        FlexSendMessage(alt_text=f"{full_name} 命格解析", contents=flex)
+        FlexSendMessage(alt_text=f"{full_name} 命格解析", contents=flex_contents)
     )
 
 @app.route("/callback", methods=["POST"])
 def callback():
-    handler.handle(
-        request.get_data(as_text=True),
-        request.headers["X-Line-Signature"]
-    )
+    try:
+        handler.handle(
+            request.get_data(as_text=True),
+            request.headers["X-Line-Signature"]
+        )
+    except InvalidSignatureError:
+        abort(400)
     return "OK"
 
 if __name__ == "__main__":
