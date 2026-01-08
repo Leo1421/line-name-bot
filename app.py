@@ -165,7 +165,7 @@ def handle_message(event):
                                         {
                                             "type": "box", "layout": "vertical", "flex": 1, "contents": [
                                                 {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
+                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
                                             ]
                                         }, # 總格精準對齊三才格寬度
                                         {"type": "box", "layout": "vertical", "flex": 1}  # 右側留空 (對應出生年)
@@ -192,4 +192,5 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
