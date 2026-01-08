@@ -78,11 +78,11 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=121"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=125"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 名字縮小至 xxl 並維持對齊
+            # 名字 xxl 居中排版
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -90,17 +90,7 @@ def handle_message(event):
                     "type": "box", 
                     "layout": "horizontal", 
                     "contents": [
-                        # 漢字：xxl 居中
-                        {
-                            "type": "text", 
-                            "text": char, 
-                            "weight": "bold", 
-                            "size": "xxl", 
-                            "color": MAIN_TEXT_COLOR, 
-                            "align": "center",
-                            "flex": 1
-                        },
-                        # 筆畫數字：絕對定位，垂直偏移微調（深色）
+                        {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": MAIN_TEXT_COLOR, "align": "center", "flex": 1},
                         {
                             "type": "text", 
                             "text": str(stroke), 
@@ -121,141 +111,64 @@ def handle_message(event):
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 背景圖：絕對定位，撐滿整個 body
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
                             "aspectMode": "cover",
-                            "position": "absolute",
-                            "aspectRatio": "3:4"
+                            "position": "absolute"
                         },
-                        # 所有內容：相對定位，疊在背景圖上
                         {
                             "type": "box",
                             "layout": "vertical",
-                            "position": "relative",
                             "paddingTop": "40px",
                             "paddingBottom": "40px",
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
                                 # 頂部標題
-                                {
-                                    "type": "text",
-                                    "text": "  婉 穎 命 光 所  ",
-                                    "weight": "bold",
-                                    "color": "#777777",
-                                    "size": "xs",
-                                    "align": "center",
-                                    "letterSpacing": "2px",
-                                    "margin": "none"
-                                },
+                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
-                                # 上半部：四大資訊區 + 出生年
+                                # 四大資訊區
+                                {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
+                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
+                                        {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                        {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                    ]},
+                                    # 名字區
+                                    {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
+                                    # 三才格
+                                    {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                        {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
+                                    ]},
+                                    # 出生年
+                                    {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                        {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
+                                        {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                    ]}
+                                ]},
+
+                                # 1. 分隔線加長至 90%
                                 {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "margin": "xxl",
-                                    "contents": [
-                                        # 外格
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "flex": 1,
-                                            "justifyContent": "center",
-                                            "contents": [
-                                                {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
-                                            ]
-                                        },
-                                        # 名字區
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "flex": 2,
-                                            "justifyContent": "center",
-                                            "spacing": "sm",
-                                            "contents": name_with_strokes
-                                        },
-                                        # 三才格
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "flex": 1,
-                                            "spacing": "md",
-                                            "justifyContent": "center",
-                                            "contents": [
-                                                {
-                                                    "type": "box",
-                                                    "layout": "vertical",
-                                                    "contents": [
-                                                        {"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                        {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "box",
-                                                    "layout": "vertical",
-                                                    "contents": [
-                                                        {"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                        {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "box",
-                                                    "layout": "vertical",
-                                                    "contents": [
-                                                        {"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                        {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        # 出生年 + 納音
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "flex": 1,
-                                            "justifyContent": "center",
-                                            "spacing": "sm",
-                                            "contents": [
-                                                {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
-                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
-                                            ]
-                                        }
-                                    ]
+                                    "type": "box", "layout": "vertical", "margin": "xxl", "height": "1px", 
+                                    "backgroundColor": MAIN_TEXT_COLOR, "width": "90%", "offsetStart": "5%"
                                 },
 
-                                # 下半部：分隔線 + 總格（合併成一個垂直區塊，正對齊上半部）
+                                # 2. 總格對齊天地人 (透過 horizontal 佈局使其垂直對應三才格的位置)
                                 {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "margin": "xl",
-                                    "justifyContent": "center",
-                                    "contents": [
-                                        # 分隔線
+                                    "type": "box", "layout": "horizontal", "margin": "xl", "contents": [
+                                        {"type": "box", "layout": "vertical", "flex": 1}, # 左側留空 (對應外格)
+                                        {"type": "box", "layout": "vertical", "flex": 2}, # 中間留空 (對應姓名)
                                         {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "margin": "none",
-                                            "height": "1px",
-                                            "backgroundColor": MAIN_TEXT_COLOR,
-                                            "width": "90%",
-                                            "offsetStart": "5%"
-                                        },
-                                        # 總格
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "margin": "sm",
-                                            "justifyContent": "center",
-                                            "contents": [
+                                            "type": "box", "layout": "vertical", "flex": 1, "contents": [
                                                 {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                                 {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
                                             ]
-                                        }
+                                        }, # 總格精準對齊三才格寬度
+                                        {"type": "box", "layout": "vertical", "flex": 1}  # 右側留空 (對應出生年)
                                     ]
                                 }
                             ]
@@ -263,7 +176,6 @@ def handle_message(event):
                     ]
                 }
             }
-            
             line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
         except Exception as e:
             logger.error(f"Error: {e}")
