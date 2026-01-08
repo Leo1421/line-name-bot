@@ -61,7 +61,6 @@ def handle_message(event):
         full_name = match.group(1)
         birth_year = match.group(2)
         try:
-            # 判斷姓氏長度
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name_part = full_name[:2], full_name[2:]
             else:
@@ -79,11 +78,11 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=141"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=131"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 名字與筆畫
+            # 名字 xxl 並維持對齊
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -91,8 +90,24 @@ def handle_message(event):
                     "type": "box", 
                     "layout": "horizontal", 
                     "contents": [
-                        {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": MAIN_TEXT_COLOR, "align": "center", "flex": 1},
-                        {"type": "text", "text": str(stroke), "size": "xxs", "color": "#666666", "position": "absolute", "offsetTop": "12px", "offsetStart": "65%"}
+                        {
+                            "type": "text", 
+                            "text": char, 
+                            "weight": "bold", 
+                            "size": "xxl", 
+                            "color": MAIN_TEXT_COLOR, 
+                            "align": "center",
+                            "flex": 1
+                        },
+                        {
+                            "type": "text", 
+                            "text": str(stroke), 
+                            "size": "xxs", 
+                            "color": "#666666", 
+                            "position": "absolute",
+                            "offsetTop": "12px",
+                            "offsetStart": "65%"
+                        }
                     ]
                 })
 
@@ -104,24 +119,26 @@ def handle_message(event):
                     "layout": "vertical",
                     "paddingAll": "0px",
                     "contents": [
-                        # 底層背景：維持填滿
+                        # 背景圖
                         {
                             "type": "image",
                             "url": BACKGROUND_URL,
                             "size": "full",
                             "aspectMode": "cover",
-                            "position": "absolute"
+                            "position": "absolute",
+                            "aspectRatio": "3:4"
                         },
-                        # 內容層：隨字數自動撐開高度
+                        # 內容疊加層
                         {
                             "type": "box",
                             "layout": "vertical",
+                            "position": "relative",
                             "paddingTop": "40px",
                             "paddingBottom": "40px",
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
-                                # 標題
+                                # 頂部標題
                                 {
                                     "type": "text",
                                     "text": "  婉 穎 命 光 所  ",
@@ -131,7 +148,8 @@ def handle_message(event):
                                     "align": "center",
                                     "letterSpacing": "2px"
                                 },
-                                # 上排資訊 (比例 1:2:1:1)
+                                
+                                # 上排資訊區 (Flex 比例 1:2:1:1)
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
@@ -142,7 +160,7 @@ def handle_message(event):
                                             {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                             {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                         ]},
-                                        # 名字區 (字數多會自動往下長)
+                                        # 名字
                                         {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
                                         # 三才格 (天人地)
                                         {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
@@ -158,23 +176,27 @@ def handle_message(event):
                                         ]}
                                     ]
                                 },
-                                # 分隔線
+
+                                # 實體分隔線 (切開上下排)
                                 {
                                     "type": "box",
                                     "layout": "vertical",
                                     "margin": "xxl",
                                     "height": "1px",
-                                    "backgroundColor": "#A6A6A6",
+                                    "backgroundColor": MAIN_TEXT_COLOR,
                                     "width": "90%",
                                     "offsetStart": "5%"
                                 },
-                                # 下排總格 (利用 Flex 3:1:1 確保精準對齊三才格)
+
+                                # 下排資訊區 (透過 Flex 佔位讓總格對齊三才格)
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "margin": "xl",
                                     "contents": [
+                                        # 佔位 Box (對應外格 + 名字的寬度 1+2=3)
                                         {"type": "box", "layout": "vertical", "flex": 3},
+                                        # 總格 (對應三才格的寬度 1)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -184,6 +206,7 @@ def handle_message(event):
                                                 {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
                                             ]
                                         },
+                                        # 佔位 Box (對應出生年的寬度 1)
                                         {"type": "box", "layout": "vertical", "flex": 1}
                                     ]
                                 }
@@ -209,4 +232,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
