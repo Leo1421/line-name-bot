@@ -100,15 +100,15 @@ def handle_message(event):
                             "align": "center",
                             "flex": 1
                         },
-                        # 筆畫數字：絕對定位，垂直偏移微調
+                        # 筆畫數字：絕對定位，垂直偏移微調（深色）
                         {
                             "type": "text", 
                             "text": str(stroke), 
                             "size": "xxs", 
                             "color": "#666666", 
                             "position": "absolute",
-                            "offsetTop": "12px",   # xxl 字體對應的置中偏移
-                            "offsetStart": "65%"   # 數字位置
+                            "offsetTop": "12px",
+                            "offsetStart": "65%"
                         }
                     ]
                 })
@@ -128,7 +128,7 @@ def handle_message(event):
                             "size": "full",
                             "aspectMode": "cover",
                             "position": "absolute",
-                            "aspectRatio": "3:4"  # 依你的背景圖調整比例
+                            "aspectRatio": "3:4"
                         },
                         # 所有內容：相對定位，疊在背景圖上
                         {
@@ -228,22 +228,22 @@ def handle_message(event):
                                     ]
                                 },
 
-                                # 實體分隔線
+                                # 實體分隔線（拉長 + 縮小間距）
                                 {
                                     "type": "box",
                                     "layout": "vertical",
-                                    "margin": "xxl",
+                                    "margin": "xl",      # 縮小，讓總格往上拉
                                     "height": "1px",
                                     "backgroundColor": MAIN_TEXT_COLOR,
-                                    "width": "80%",
-                                    "offsetStart": "10%"
+                                    "width": "90%",      # 拉長
+                                    "offsetStart": "5%"  # 往兩側延伸
                                 },
 
-                                # 總格
+                                # 總格（貼近分隔線）
                                 {
                                     "type": "box",
                                     "layout": "vertical",
-                                    "margin": "xl",
+                                    "margin": "md",      # 縮小，讓總格更貼近分隔線
                                     "contents": [
                                         {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                         {"type": "text", "text": get_element(zong), "weight": "bold", "size": "lg", "color": "#000000", "align": "center"}
@@ -271,6 +271,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
-
-
