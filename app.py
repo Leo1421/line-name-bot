@@ -78,7 +78,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 配置設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=125"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=126"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
@@ -127,7 +127,7 @@ def handle_message(event):
                             "paddingEnd": "16px",
                             "contents": [
                                 # 頂部標題
-                                {"type": "text", "text": " — 婉 穎 命 光 所 — ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
+                                {"type": "text", "text": "  婉 穎 命 光 所  ", "weight": "bold", "color": "#777777", "size": "xs", "align": "center", "letterSpacing": "2px"},
                                 
                                 # 四大資訊區
                                 {"type": "box", "layout": "horizontal", "margin": "xxl", "contents": [
@@ -151,10 +151,10 @@ def handle_message(event):
                                     ]}
                                 ]},
 
-                                # 1. 分隔線加長至 90%
+                                # 1. 分隔線加長至 95%
                                 {
                                     "type": "box", "layout": "vertical", "margin": "xxl", "height": "1px", 
-                                    "backgroundColor": MAIN_TEXT_COLOR, "width": "90%", "offsetStart": "5%"
+                                    "backgroundColor": MAIN_TEXT_COLOR, "width": "95%", "offsetStart": "5%"
                                 },
 
                                 # 2. 總格對齊天地人 (透過 horizontal 佈局使其垂直對應三才格的位置)
@@ -192,3 +192,4 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
