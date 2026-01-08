@@ -105,7 +105,7 @@ def handle_message(event):
                             "type": "text", 
                             "text": str(stroke), 
                             "size": "xxs", 
-                            "color": "#aaaaaa", 
+                            "color": "#666666", 
                             "position": "absolute",
                             "offsetTop": "12px",   # xxl 字體對應的置中偏移
                             "offsetStart": "65%"   # 數字位置
@@ -271,4 +271,5 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
+
 
