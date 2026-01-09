@@ -51,10 +51,7 @@ def get_nayin_simple(year):
     try:
         if year is None: return None
         y = int(year)
-        
-        # 修正：移除 if y < 1924 的限制
-        # Python 的 % 運算支援負數循環，所以 1912 也能正確算出索引
-        # (1912 - 1924) = -12, -12 % 60 = 48, 48 // 2 = 24 (對應 桑柘木)
+        # 取納音最後一個字 (例如 "路旁土" -> "土")
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -65,30 +62,34 @@ def handle_message(event):
     
     if match:
         full_name = match.group(1)
-        raw_year = match.group(2)
+        raw_year_input = match.group(2) # 保留原始輸入字串 (例如 "79" 或 "1990")
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
-        if raw_year:
+        age = None
+        
+        if raw_year_input:
             try:
-                y_val = int(raw_year)
+                y_val = int(raw_year_input)
                 
                 # 抓取系統當下年份
                 this_year = datetime.now().year
                 this_roc = this_year - 1911
                 future_buffer = 2
                 
-                # A. 判斷民國年 (1 ~ 117)
+                # A. 判斷民國年
                 if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
-                    
-                # B. 判斷西元年 (1850 ~ 2028)
+                # B. 判斷西元年
                 elif 1850 <= y_val <= (this_year + future_buffer):
                     birth_year = y_val
-                    
                 # C. 無效
                 else:
                     birth_year = None
+                
+                # 計算實歲 (今年 - 出生西元年)
+                if birth_year:
+                    age = this_year - birth_year
                     
             except ValueError:
                 birth_year = None
@@ -110,6 +111,9 @@ def handle_message(event):
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             
             n_res = get_nayin_simple(birth_year)
+
+            # 組合顯示字串: (79年/36歲)
+            age_display = f"({raw_year_input}年/{age}歲)" if (birth_year and age is not None) else "--"
 
             # --- 配置設定 ---
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
@@ -202,11 +206,14 @@ def handle_message(event):
                                             {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
                                             {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
                                         ]},
-                                        # 出生年
+                                        # 出生年 (修改重點區)
                                         {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
+                                            # 1. 標題
                                             {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
-                                            {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                            # 2. 五行屬性 (土)，字體大一點
+                                            {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR},
+                                            # 3. 原始輸入年分 / 年齡
+                                            {"type": "text", "text": age_display, "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
                                         ]}
                                     ]
                                 },
