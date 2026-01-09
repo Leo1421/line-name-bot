@@ -59,7 +59,23 @@ def handle_message(event):
     
     if match:
         full_name = match.group(1)
-        birth_year = match.group(2)
+        raw_year = match.group(2)  # 抓取原始輸入的年份字串
+        
+        # --- 新增: 民國/西元轉換邏輯 ---
+        birth_year = None
+        if raw_year:
+            try:
+                y_val = int(raw_year)
+                # 如果數字小於 1911，視為民國年，加上 1911 轉西元
+                # 例如: 輸入 78 -> 變為 1989
+                if y_val < 1911:
+                    birth_year = y_val + 1911
+                else:
+                    birth_year = y_val
+            except ValueError:
+                birth_year = None
+        # ----------------------------------
+
         try:
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
                 surname, name_part = full_name[:2], full_name[2:]
@@ -171,13 +187,14 @@ def handle_message(event):
                                         # 出生年
                                         {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
                                             {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                            # 這裡顯示的是經過計算的 birth_year (西元)
                                             {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
                                             {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                         ]}
                                     ]
                                 },
 
-                                # 實體分隔線 (切開上下排)
+                                # 實體分隔線
                                 {
                                     "type": "box",
                                     "layout": "vertical",
@@ -188,15 +205,13 @@ def handle_message(event):
                                     "offsetStart": "5%"
                                 },
 
-                                # 下排資訊區 (透過 Flex 佔位讓總格對齊三才格)
+                                # 下排資訊區
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "margin": "xl",
                                     "contents": [
-                                        # 佔位 Box (對應外格 + 名字的寬度 1+2=3)
                                         {"type": "box", "layout": "vertical", "flex": 3},
-                                        # 總格 (對應三才格的寬度 1)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -206,7 +221,6 @@ def handle_message(event):
                                                 {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
                                             ]
                                         },
-                                        # 佔位 Box (對應出生年的寬度 1)
                                         {"type": "box", "layout": "vertical", "flex": 1}
                                     ]
                                 }
@@ -232,5 +246,3 @@ def callback():
 
 if __name__ == "__main__":
     app.run()
-
-
