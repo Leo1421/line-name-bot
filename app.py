@@ -44,12 +44,14 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin_simple(year):
+    # 納音表 (30組，每組對應2年)
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
     try:
         if year is None: return None
         y = int(year)
+        # 取納音最後一個字 (例如 "路旁土" -> "土")
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -64,15 +66,16 @@ def handle_message(event):
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
-        age = None
+        age_msg = "" # 用來存顯示用的年齡字串
         
         if raw_year_input:
             try:
                 y_val = int(raw_year_input)
                 this_year = datetime.now().year
                 this_roc = this_year - 1911
-                future_buffer = 2
+                future_buffer = 2 # 允許計算未來 2 年 (預產期)
                 
+                # 範圍檢查
                 if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
                 elif 1850 <= y_val <= (this_year + future_buffer):
@@ -80,10 +83,19 @@ def handle_message(event):
                 else:
                     birth_year = None
                 
+                # 年齡計算與顯示邏輯修正
                 if birth_year:
                     age = this_year - birth_year
+                    if age < 0:
+                        age_msg = "未出生"  # 如果是未來年份 (例如 -1歲)
+                    else:
+                        age_msg = f"{age}歲"
+                else:
+                    age_msg = "" # 無效年份不顯示年齡
+                    
             except ValueError:
                 birth_year = None
+                age_msg = ""
         # -----------------------
 
         try:
@@ -196,7 +208,7 @@ def handle_message(event):
                                                 {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
                                             ]
                                         },
-                                        # 出生年資訊
+                                        # 出生年資訊 (顯示邏輯更新)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -207,7 +219,8 @@ def handle_message(event):
                                                 {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
                                                 {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR},
                                                 {"type": "text", "text": raw_year_input if raw_year_input else "--", "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR},
-                                                {"type": "text", "text": f"{age}歲" if age is not None else "", "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
+                                                # 這裡顯示 age_msg (包含 "未出生" 或 "X歲")
+                                                {"type": "text", "text": age_msg, "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
                                             ]
                                         }
                                     ]
