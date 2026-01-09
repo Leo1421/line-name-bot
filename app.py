@@ -62,7 +62,7 @@ def handle_message(event):
     
     if match:
         full_name = match.group(1)
-        raw_year_input = match.group(2) # 保留原始輸入字串 (例如 "79" 或 "1990")
+        raw_year_input = match.group(2) # 保留原始輸入字串
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
@@ -87,7 +87,7 @@ def handle_message(event):
                 else:
                     birth_year = None
                 
-                # 計算實歲 (今年 - 出生西元年)
+                # 計算實歲
                 if birth_year:
                     age = this_year - birth_year
                     
@@ -111,9 +111,6 @@ def handle_message(event):
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             
             n_res = get_nayin_simple(birth_year)
-
-            # 組合顯示字串: (79年/36歲)
-            age_display = f"({raw_year_input}年/{age}歲)" if (birth_year and age is not None) else "--"
 
             # --- 配置設定 ---
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
@@ -194,79 +191,4 @@ def handle_message(event):
                                     "margin": "xxl",
                                     "contents": [
                                         # 外格
-                                        {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents": [
-                                            {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
-                                        ]},
-                                        # 名字
-                                        {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                        # 三才格
-                                        {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
-                                            {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                            {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                            {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
-                                        ]},
-                                        # 出生年 (修改重點區)
-                                        {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
-                                            # 1. 標題
-                                            {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            # 2. 五行屬性 (土)，字體大一點
-                                            {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR},
-                                            # 3. 原始輸入年分 / 年齡
-                                            {"type": "text", "text": age_display, "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
-                                        ]}
-                                    ]
-                                },
-
-                                # 分隔線
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "margin": "xxl",
-                                    "height": "1px",
-                                    "backgroundColor": MAIN_TEXT_COLOR,
-                                    "width": "90%",
-                                    "offsetStart": "5%"
-                                },
-
-                                # 下排資訊區
-                                {
-                                    "type": "box",
-                                    "layout": "horizontal",
-                                    "margin": "xl",
-                                    "contents": [
-                                        {"type": "box", "layout": "vertical", "flex": 3},
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "flex": 1,
-                                            "contents": [
-                                                {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
-                                            ]
-                                        },
-                                        {"type": "box", "layout": "vertical", "flex": 1}
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-            
-            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
-        except Exception as e:
-            logger.error(f"Error: {e}")
-
-@app.route("/callback", methods=['POST'])
-def callback():
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-    return 'OK'
-
-if __name__ == "__main__":
-    app.run()
+                                        {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents
