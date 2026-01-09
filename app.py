@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import MessageEvent, TextMessage, FlexSendMessage, TextSendMessage
+from linebot.models import MessageEvent, TextMessage, FlexSendMessage
 from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
@@ -44,14 +44,12 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin_simple(year):
-    # 納音表 (30組，每組對應2年)
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
     try:
         if year is None: return None
         y = int(year)
-        # 取納音最後一個字 (例如 "路旁土" -> "土")
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -62,7 +60,7 @@ def handle_message(event):
     
     if match:
         full_name = match.group(1)
-        raw_year_input = match.group(2) # 保留原始輸入字串
+        raw_year_input = match.group(2)
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
@@ -71,26 +69,19 @@ def handle_message(event):
         if raw_year_input:
             try:
                 y_val = int(raw_year_input)
-                
-                # 抓取系統當下年份
                 this_year = datetime.now().year
                 this_roc = this_year - 1911
                 future_buffer = 2
                 
-                # A. 判斷民國年
                 if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
-                # B. 判斷西元年
                 elif 1850 <= y_val <= (this_year + future_buffer):
                     birth_year = y_val
-                # C. 無效
                 else:
                     birth_year = None
                 
-                # 計算實歲
                 if birth_year:
                     age = this_year - birth_year
-                    
             except ValueError:
                 birth_year = None
         # -----------------------
@@ -109,15 +100,14 @@ def handle_message(event):
             ren = (s_strk[-1] + n_strk[0])
             di = ((n_strk[0] + 1) if len(name_part) <= 1 else sum(n_strk))
             wai = 2 if len(full_name) == 2 else zong - ren + 1
-            
             n_res = get_nayin_simple(birth_year)
 
-            # --- 配置設定 ---
+            # 樣式設定
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 名字處理
+            # 構建名字區塊
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -125,24 +115,8 @@ def handle_message(event):
                     "type": "box", 
                     "layout": "horizontal", 
                     "contents": [
-                        {
-                            "type": "text", 
-                            "text": char, 
-                            "weight": "bold", 
-                            "size": "xxl", 
-                            "color": MAIN_TEXT_COLOR, 
-                            "align": "center",
-                            "flex": 1
-                        },
-                        {
-                            "type": "text", 
-                            "text": str(stroke), 
-                            "size": "xxs", 
-                            "color": "#666666", 
-                            "position": "absolute",
-                            "offsetTop": "12px",
-                            "offsetStart": "65%"
-                        }
+                        {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": MAIN_TEXT_COLOR, "align": "center", "flex": 1},
+                        {"type": "text", "text": str(stroke), "size": "xxs", "color": "#666666", "position": "absolute", "offsetTop": "12px", "offsetStart": "65%"}
                     ]
                 })
 
@@ -163,7 +137,7 @@ def handle_message(event):
                             "position": "absolute",
                             "aspectRatio": "3:4"
                         },
-                        # 內容疊加層
+                        # 內容層
                         {
                             "type": "box",
                             "layout": "vertical",
@@ -173,7 +147,7 @@ def handle_message(event):
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
-                                # 頂部標題
+                                # 標題
                                 {
                                     "type": "text",
                                     "text": "  婉 穎 命 光 所  ",
@@ -183,12 +157,109 @@ def handle_message(event):
                                     "align": "center",
                                     "letterSpacing": "2px"
                                 },
-                                
-                                # 上排資訊區
+                                # 上半部資訊
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "margin": "xxl",
                                     "contents": [
                                         # 外格
-                                        {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "contents
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "justifyContent": "center",
+                                            "contents": [
+                                                {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                            ]
+                                        },
+                                        # 名字
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 2,
+                                            "justifyContent": "center",
+                                            "spacing": "sm",
+                                            "contents": name_with_strokes
+                                        },
+                                        # 三才格
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "spacing": "md",
+                                            "justifyContent": "center",
+                                            "contents": [
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
+                                            ]
+                                        },
+                                        # 出生年資訊
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "justifyContent": "center",
+                                            "spacing": "xs",
+                                            "contents": [
+                                                {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR},
+                                                {"type": "text", "text": raw_year_input if raw_year_input else "--", "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR},
+                                                {"type": "text", "text": f"{age}歲" if age is not None else "", "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
+                                            ]
+                                        }
+                                    ]
+                                },
+                                # 分隔線
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "margin": "xxl",
+                                    "height": "1px",
+                                    "backgroundColor": MAIN_TEXT_COLOR,
+                                    "width": "90%",
+                                    "offsetStart": "5%"
+                                },
+                                # 下半部資訊 (總格)
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "margin": "xl",
+                                    "contents": [
+                                        {"type": "box", "layout": "vertical", "flex": 3},
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1,
+                                            "contents": [
+                                                {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
+                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
+                                            ]
+                                        },
+                                        {"type": "box", "layout": "vertical", "flex": 1}
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            
+            line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text=f"{full_name}鑑定中", contents=flex_contents))
+        except Exception as e:
+            logger.error(f"Error: {e}")
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return 'OK'
+
+if __name__ == "__main__":
+    app.run()
