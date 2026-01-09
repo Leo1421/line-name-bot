@@ -2,6 +2,7 @@ import os
 import json
 import re
 import logging
+from datetime import datetime  # 新增 datetime 模組
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, FlexSendMessage, TextSendMessage
@@ -47,6 +48,7 @@ def get_nayin_simple(year):
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
     try:
+        if year is None: return None
         y = int(year)
         if y < 1924: return None
         return nayins[((y - 1924) % 60) // 2][-1] 
@@ -59,22 +61,39 @@ def handle_message(event):
     
     if match:
         full_name = match.group(1)
-        raw_year = match.group(2)  # 抓取原始輸入的年份字串
+        raw_year = match.group(2)
         
-        # --- 新增: 民國/西元轉換邏輯 ---
+        # --- 3.0 極致精準：動態年份判斷邏輯 ---
         birth_year = None
         if raw_year:
             try:
                 y_val = int(raw_year)
-                # 如果數字小於 1911，視為民國年，加上 1911 轉西元
-                # 例如: 輸入 78 -> 變為 1989
-                if y_val < 1911:
+                
+                # 抓取系統當下年份 (例如 2026)
+                this_year = datetime.now().year
+                this_roc = this_year - 1911
+                
+                # 設定「未來寬容度」：允許計算未來 2 年內出生的嬰兒 (例如預產期)
+                future_buffer = 2
+                
+                # A. 判斷民國年： 
+                # 範圍：1 ~ (今年民國 + 寬容度)
+                # 例如 2026年時，只接受 1 ~ 117。 輸入 199 會因為超過 117 而失敗
+                if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
-                else:
+                    
+                # B. 判斷西元年：
+                # 範圍：1850 ~ (今年 + 寬容度)
+                elif 1850 <= y_val <= (this_year + future_buffer):
                     birth_year = y_val
+                    
+                # C. 都不符合 (例如 199, 300, 5000) -> 無效
+                else:
+                    birth_year = None
+                    
             except ValueError:
                 birth_year = None
-        # ----------------------------------
+        # -----------------------------------------------
 
         try:
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
@@ -187,14 +206,13 @@ def handle_message(event):
                                         # 出生年
                                         {"type": "box", "layout": "vertical", "flex": 1, "justifyContent": "center", "spacing": "sm", "contents": [
                                             {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                            # 這裡顯示的是經過計算的 birth_year (西元)
                                             {"type": "text", "text": str(birth_year) if birth_year else "--", "weight": "bold", "align": "center", "size": "xs", "color": MAIN_TEXT_COLOR},
                                             {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
                                         ]}
                                     ]
                                 },
 
-                                # 實體分隔線
+                                # 實體分隔線 (切開上下排)
                                 {
                                     "type": "box",
                                     "layout": "vertical",
@@ -205,13 +223,15 @@ def handle_message(event):
                                     "offsetStart": "5%"
                                 },
 
-                                # 下排資訊區
+                                # 下排資訊區 (透過 Flex 佔位讓總格對齊三才格)
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "margin": "xl",
                                     "contents": [
+                                        # 佔位 Box (對應外格 + 名字的寬度 1+2=3)
                                         {"type": "box", "layout": "vertical", "flex": 3},
+                                        # 總格 (對應三才格的寬度 1)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -221,6 +241,7 @@ def handle_message(event):
                                                 {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
                                             ]
                                         },
+                                        # 佔位 Box (對應出生年的寬度 1)
                                         {"type": "box", "layout": "vertical", "flex": 1}
                                     ]
                                 }
