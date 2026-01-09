@@ -2,7 +2,7 @@ import os
 import json
 import re
 import logging
-from datetime import datetime  # 新增 datetime 模組
+from datetime import datetime
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, FlexSendMessage, TextSendMessage
@@ -44,13 +44,17 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin_simple(year):
+    # 納音表 (30組，每組對應2年)
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
     try:
         if year is None: return None
         y = int(year)
-        if y < 1924: return None
+        
+        # 修正：移除 if y < 1924 的限制
+        # Python 的 % 運算支援負數循環，所以 1912 也能正確算出索引
+        # (1912 - 1924) = -12, -12 % 60 = 48, 48 // 2 = 24 (對應 桑柘木)
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -63,37 +67,32 @@ def handle_message(event):
         full_name = match.group(1)
         raw_year = match.group(2)
         
-        # --- 3.0 極致精準：動態年份判斷邏輯 ---
+        # --- 動態年份判斷邏輯 ---
         birth_year = None
         if raw_year:
             try:
                 y_val = int(raw_year)
                 
-                # 抓取系統當下年份 (例如 2026)
+                # 抓取系統當下年份
                 this_year = datetime.now().year
                 this_roc = this_year - 1911
-                
-                # 設定「未來寬容度」：允許計算未來 2 年內出生的嬰兒 (例如預產期)
                 future_buffer = 2
                 
-                # A. 判斷民國年： 
-                # 範圍：1 ~ (今年民國 + 寬容度)
-                # 例如 2026年時，只接受 1 ~ 117。 輸入 199 會因為超過 117 而失敗
+                # A. 判斷民國年 (1 ~ 117)
                 if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
                     
-                # B. 判斷西元年：
-                # 範圍：1850 ~ (今年 + 寬容度)
+                # B. 判斷西元年 (1850 ~ 2028)
                 elif 1850 <= y_val <= (this_year + future_buffer):
                     birth_year = y_val
                     
-                # C. 都不符合 (例如 199, 300, 5000) -> 無效
+                # C. 無效
                 else:
                     birth_year = None
                     
             except ValueError:
                 birth_year = None
-        # -----------------------------------------------
+        # -----------------------
 
         try:
             if (len(full_name) >= 3 and full_name[:2] in DOUBLE_SURNAME_LIST) or len(full_name) == 4:
@@ -117,7 +116,7 @@ def handle_message(event):
             MAIN_TEXT_COLOR = "#333333" 
             SUB_TEXT_COLOR = "#999999"  
 
-            # 名字 xxl 並維持對齊
+            # 名字處理
             name_with_strokes = []
             for char in full_name:
                 stroke = get_stroke_count(char)
@@ -184,7 +183,7 @@ def handle_message(event):
                                     "letterSpacing": "2px"
                                 },
                                 
-                                # 上排資訊區 (Flex 比例 1:2:1:1)
+                                # 上排資訊區
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
@@ -197,7 +196,7 @@ def handle_message(event):
                                         ]},
                                         # 名字
                                         {"type": "box", "layout": "vertical", "flex": 2, "justifyContent": "center", "spacing": "sm", "contents": name_with_strokes},
-                                        # 三才格 (天人地)
+                                        # 三才格
                                         {"type": "box", "layout": "vertical", "flex": 1, "spacing": "md", "justifyContent": "center", "contents": [
                                             {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
                                             {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
@@ -212,7 +211,7 @@ def handle_message(event):
                                     ]
                                 },
 
-                                # 實體分隔線 (切開上下排)
+                                # 分隔線
                                 {
                                     "type": "box",
                                     "layout": "vertical",
@@ -223,15 +222,13 @@ def handle_message(event):
                                     "offsetStart": "5%"
                                 },
 
-                                # 下排資訊區 (透過 Flex 佔位讓總格對齊三才格)
+                                # 下排資訊區
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "margin": "xl",
                                     "contents": [
-                                        # 佔位 Box (對應外格 + 名字的寬度 1+2=3)
                                         {"type": "box", "layout": "vertical", "flex": 3},
-                                        # 總格 (對應三才格的寬度 1)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -241,7 +238,6 @@ def handle_message(event):
                                                 {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
                                             ]
                                         },
-                                        # 佔位 Box (對應出生年的寬度 1)
                                         {"type": "box", "layout": "vertical", "flex": 1}
                                     ]
                                 }
