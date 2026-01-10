@@ -66,14 +66,14 @@ def handle_message(event):
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
-        age_msg = "" # 用來存顯示用的年齡字串
+        age_msg = ""
         
         if raw_year_input:
             try:
                 y_val = int(raw_year_input)
                 this_year = datetime.now().year
                 this_roc = this_year - 1911
-                future_buffer = 2 # 允許計算未來 2 年 (預產期)
+                future_buffer = 2 
                 
                 # 範圍檢查
                 if 0 < y_val <= (this_roc + future_buffer):
@@ -83,15 +83,15 @@ def handle_message(event):
                 else:
                     birth_year = None
                 
-                # 年齡計算與顯示邏輯修正
+                # 年齡計算
                 if birth_year:
                     age = this_year - birth_year
                     if age < 0:
-                        age_msg = "未出生"  # 如果是未來年份 (例如 -1歲)
+                        age_msg = "未出生"
                     else:
                         age_msg = f"{age}歲"
                 else:
-                    age_msg = "" # 無效年份不顯示年齡
+                    age_msg = ""
                     
             except ValueError:
                 birth_year = None
@@ -114,9 +114,17 @@ def handle_message(event):
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             n_res = get_nayin_simple(birth_year)
 
-            # 樣式設定
+            # --- 樣式設定 (修改重點) ---
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
-            MAIN_TEXT_COLOR = "#333333" 
+            
+            # 標題顏色 (保持不變)
+            TITLE_COLOR = "#777777"
+            
+            # 主要內容顏色 (姓名、五行) - 修改為 #555555
+            # 比原本的黑淺一點，但比標題的 #777777 深
+            CONTENT_COLOR = "#555555" 
+            
+            # 輔助文字顏色 (外格、天格...小字)
             SUB_TEXT_COLOR = "#999999"  
 
             # 構建名字區塊
@@ -127,7 +135,7 @@ def handle_message(event):
                     "type": "box", 
                     "layout": "horizontal", 
                     "contents": [
-                        {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": MAIN_TEXT_COLOR, "align": "center", "flex": 1},
+                        {"type": "text", "text": char, "weight": "bold", "size": "xxl", "color": CONTENT_COLOR, "align": "center", "flex": 1},
                         {"type": "text", "text": str(stroke), "size": "xxs", "color": "#666666", "position": "absolute", "offsetTop": "12px", "offsetStart": "65%"}
                     ]
                 })
@@ -154,7 +162,7 @@ def handle_message(event):
                             "type": "box",
                             "layout": "vertical",
                             "position": "relative",
-                            "paddingTop": "40px",
+                            "paddingTop": "25px",  # 修改：從 40px 減少到 25px，讓標題位置高一點
                             "paddingBottom": "40px",
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
@@ -164,7 +172,7 @@ def handle_message(event):
                                     "type": "text",
                                     "text": "  婉 穎 命 光 所  ",
                                     "weight": "bold",
-                                    "color": "#777777",
+                                    "color": TITLE_COLOR, # 使用設定好的標題顏色
                                     "size": "xs",
                                     "align": "center",
                                     "letterSpacing": "2px"
@@ -183,7 +191,7 @@ def handle_message(event):
                                             "justifyContent": "center",
                                             "contents": [
                                                 {"type": "text", "text": "外格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR}
+                                                {"type": "text", "text": get_element(wai), "weight": "bold", "align": "center", "size": "md", "color": CONTENT_COLOR}
                                             ]
                                         },
                                         # 名字
@@ -203,12 +211,12 @@ def handle_message(event):
                                             "spacing": "md",
                                             "justifyContent": "center",
                                             "contents": [
-                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]},
-                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": MAIN_TEXT_COLOR, "align": "center"}]}
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "天格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(tian), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}]},
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "人格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(ren), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}]},
+                                                {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}]}
                                             ]
                                         },
-                                        # 出生年資訊 (顯示邏輯更新)
+                                        # 出生年資訊
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -217,10 +225,9 @@ def handle_message(event):
                                             "spacing": "xs",
                                             "contents": [
                                                 {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": MAIN_TEXT_COLOR},
-                                                {"type": "text", "text": raw_year_input if raw_year_input else "--", "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR},
-                                                # 這裡顯示 age_msg (包含 "未出生" 或 "X歲")
-                                                {"type": "text", "text": age_msg, "weight": "bold", "align": "center", "size": "xxs", "color": MAIN_TEXT_COLOR}
+                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": CONTENT_COLOR},
+                                                {"type": "text", "text": raw_year_input if raw_year_input else "--", "weight": "bold", "align": "center", "size": "xxs", "color": CONTENT_COLOR},
+                                                {"type": "text", "text": age_msg, "weight": "bold", "align": "center", "size": "xxs", "color": CONTENT_COLOR}
                                             ]
                                         }
                                     ]
@@ -231,7 +238,7 @@ def handle_message(event):
                                     "layout": "vertical",
                                     "margin": "xxl",
                                     "height": "1px",
-                                    "backgroundColor": MAIN_TEXT_COLOR,
+                                    "backgroundColor": CONTENT_COLOR, # 分隔線也稍微變淡一點點
                                     "width": "90%",
                                     "offsetStart": "5%"
                                 },
@@ -248,7 +255,7 @@ def handle_message(event):
                                             "flex": 1,
                                             "contents": [
                                                 {"type": "text", "text": "總格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": "#000000", "align": "center"}
+                                                {"type": "text", "text": get_element(zong), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}
                                             ]
                                         },
                                         {"type": "box", "layout": "vertical", "flex": 1}
