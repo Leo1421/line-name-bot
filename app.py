@@ -44,14 +44,12 @@ def get_element(number):
     return map_dict.get(last_digit, '未知')
 
 def get_nayin_simple(year):
-    # 納音表 (30組，每組對應2年)
     nayins = ["海中金","爐中火","大林木","路旁土","劍鋒金","山頭火","澗下水","城頭土","白蠟金","楊柳木",
               "泉中水","屋上土","霹靂火","松柏木","長流水","沙中金","山下火","平地木","壁上土","金箔金",
               "覆燈火","天河水","大驛土","釵釧金","桑柘木","大溪水","沙中土","天上火","石榴木","大海水"]
     try:
         if year is None: return None
         y = int(year)
-        # 取納音最後一個字 (例如 "路旁土" -> "土")
         return nayins[((y - 1924) % 60) // 2][-1] 
     except: return None
 
@@ -66,7 +64,7 @@ def handle_message(event):
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
-        age_msg = ""
+        top_left_info = "" # 存放左上角字串 (1990年/36歲)
         
         if raw_year_input:
             try:
@@ -75,7 +73,7 @@ def handle_message(event):
                 this_roc = this_year - 1911
                 future_buffer = 2 
                 
-                # 範圍檢查
+                # 判斷並統一轉為西元年
                 if 0 < y_val <= (this_roc + future_buffer):
                     birth_year = y_val + 1911
                 elif 1850 <= y_val <= (this_year + future_buffer):
@@ -83,19 +81,18 @@ def handle_message(event):
                 else:
                     birth_year = None
                 
-                # 年齡計算
+                # 組合顯示字串
                 if birth_year:
                     age = this_year - birth_year
-                    if age < 0:
-                        age_msg = "未出生"
-                    else:
-                        age_msg = f"{age}歲"
+                    # 如果未出生(負歲數)，顯示 "未出生"
+                    age_str = f"{age}歲" if age >= 0 else "未出生"
+                    top_left_info = f"({birth_year}年/{age_str})"
                 else:
-                    age_msg = ""
+                    top_left_info = ""
                     
             except ValueError:
                 birth_year = None
-                age_msg = ""
+                top_left_info = ""
         # -----------------------
 
         try:
@@ -114,17 +111,10 @@ def handle_message(event):
             wai = 2 if len(full_name) == 2 else zong - ren + 1
             n_res = get_nayin_simple(birth_year)
 
-            # --- 樣式設定 (修改重點) ---
+            # --- 樣式設定 ---
             BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
-            
-            # 標題顏色 (保持不變)
             TITLE_COLOR = "#777777"
-            
-            # 主要內容顏色 (姓名、五行) - 修改為 #555555
-            # 比原本的黑淺一點，但比標題的 #777777 深
             CONTENT_COLOR = "#555555" 
-            
-            # 輔助文字顏色 (外格、天格...小字)
             SUB_TEXT_COLOR = "#999999"  
 
             # 構建名字區塊
@@ -162,21 +152,47 @@ def handle_message(event):
                             "type": "box",
                             "layout": "vertical",
                             "position": "relative",
-                            "paddingTop": "25px",  # 修改：從 40px 減少到 25px，讓標題位置高一點
+                            "paddingTop": "25px",
                             "paddingBottom": "40px",
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
-                                # 標題
+                                # --- 頂部區域 (年份/歲數 + 標題) ---
                                 {
-                                    "type": "text",
-                                    "text": "  婉 穎 命 光 所  ",
-                                    "weight": "bold",
-                                    "color": TITLE_COLOR, # 使用設定好的標題顏色
-                                    "size": "xs",
-                                    "align": "center",
-                                    "letterSpacing": "2px"
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        # 左側：年份/歲數 (佔位 flex=1)
+                                        {
+                                            "type": "text",
+                                            "text": top_left_info,
+                                            "size": "xxs",
+                                            "color": SUB_TEXT_COLOR,
+                                            "flex": 1,
+                                            "align": "start",
+                                            "gravity": "center" # 垂直居中
+                                        },
+                                        # 中間：標題 (佔位 flex=2，確保足夠空間顯示標題)
+                                        {
+                                            "type": "text",
+                                            "text": "婉 穎 命 光 所", # 稍微縮短空白以適應版面
+                                            "weight": "bold",
+                                            "color": TITLE_COLOR,
+                                            "size": "xs",
+                                            "align": "center",
+                                            "flex": 2,
+                                            "gravity": "center"
+                                        },
+                                        # 右側：空白佔位 (佔位 flex=1，與左側平衡)
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "flex": 1
+                                        }
+                                    ]
                                 },
+                                # --- 頂部區域結束 ---
+                                
                                 # 上半部資訊
                                 {
                                     "type": "box",
@@ -216,7 +232,7 @@ def handle_message(event):
                                                 {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}]}
                                             ]
                                         },
-                                        # 出生年資訊
+                                        # 出生年資訊 (現在只剩五行)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -225,9 +241,7 @@ def handle_message(event):
                                             "spacing": "xs",
                                             "contents": [
                                                 {"type": "text", "text": "出生年", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"},
-                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": CONTENT_COLOR},
-                                                {"type": "text", "text": raw_year_input if raw_year_input else "--", "weight": "bold", "align": "center", "size": "xxs", "color": CONTENT_COLOR},
-                                                {"type": "text", "text": age_msg, "weight": "bold", "align": "center", "size": "xxs", "color": CONTENT_COLOR}
+                                                {"type": "text", "text": str(n_res) if n_res else "--", "weight": "bold", "align": "center", "size": "md", "color": CONTENT_COLOR}
                                             ]
                                         }
                                     ]
@@ -238,7 +252,7 @@ def handle_message(event):
                                     "layout": "vertical",
                                     "margin": "xxl",
                                     "height": "1px",
-                                    "backgroundColor": CONTENT_COLOR, # 分隔線也稍微變淡一點點
+                                    "backgroundColor": CONTENT_COLOR,
                                     "width": "90%",
                                     "offsetStart": "5%"
                                 },
