@@ -111,7 +111,7 @@ def handle_message(event):
             n_res = get_nayin_simple(birth_year)
 
             # --- 樣式設定 ---
-            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=143"
+            BACKGROUND_URL = "https://raw.githubusercontent.com/Leo1421/line-name-bot/main/background.jpg?v=147"
             TITLE_COLOR = "#777777"
             CONTENT_COLOR = "#555555" 
             SUB_TEXT_COLOR = "#999999"  
