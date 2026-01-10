@@ -64,7 +64,7 @@ def handle_message(event):
         
         # --- 動態年份判斷邏輯 ---
         birth_year = None
-        top_left_info = "" # 存放左上角字串 (1990年/36歲)
+        top_left_info = "" 
         
         if raw_year_input:
             try:
@@ -84,7 +84,6 @@ def handle_message(event):
                 # 組合顯示字串
                 if birth_year:
                     age = this_year - birth_year
-                    # 如果未出生(負歲數)，顯示 "未出生"
                     age_str = f"{age}歲" if age >= 0 else "未出生"
                     top_left_info = f"({birth_year}年/{age_str})"
                 else:
@@ -157,25 +156,25 @@ def handle_message(event):
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
-                                # --- 頂部區域 (年份/歲數 + 標題) ---
+                                # --- 頂部區域 ---
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "contents": [
-                                        # 左側：年份/歲數 (佔位 flex=1)
+                                        # 左側：年份/歲數 (修改處：size 改為 "10px")
                                         {
                                             "type": "text",
                                             "text": top_left_info,
-                                            "size": "xxs",
+                                            "size": "10px",  # 比 xxs 更小
                                             "color": SUB_TEXT_COLOR,
                                             "flex": 1,
                                             "align": "start",
-                                            "gravity": "center" # 垂直居中
+                                            "gravity": "center"
                                         },
-                                        # 中間：標題 (佔位 flex=2，確保足夠空間顯示標題)
+                                        # 中間：標題
                                         {
                                             "type": "text",
-                                            "text": "婉 穎 命 光 所", # 稍微縮短空白以適應版面
+                                            "text": "婉 穎 命 光 所",
                                             "weight": "bold",
                                             "color": TITLE_COLOR,
                                             "size": "xs",
@@ -183,7 +182,7 @@ def handle_message(event):
                                             "flex": 2,
                                             "gravity": "center"
                                         },
-                                        # 右側：空白佔位 (佔位 flex=1，與左側平衡)
+                                        # 右側：空白佔位
                                         {
                                             "type": "box",
                                             "layout": "vertical",
@@ -232,7 +231,7 @@ def handle_message(event):
                                                 {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "地格", "size": "xxs", "color": SUB_TEXT_COLOR, "align": "center"}, {"type": "text", "text": get_element(di), "weight": "bold", "size": "md", "color": CONTENT_COLOR, "align": "center"}]}
                                             ]
                                         },
-                                        # 出生年資訊 (現在只剩五行)
+                                        # 出生年資訊 (五行)
                                         {
                                             "type": "box",
                                             "layout": "vertical",
