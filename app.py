@@ -156,22 +156,11 @@ def handle_message(event):
                             "paddingStart": "16px",
                             "paddingEnd": "16px",
                             "contents": [
-                                # --- 頂部區域 ---
+                                # --- 1. 標題區 (第一行) ---
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "contents": [
-                                        # 左側：年份/歲數 (修改處：size 改為 "10px")
-                                        {
-                                            "type": "text",
-                                            "text": top_left_info,
-                                            "size": "10px",  # 比 xxs 更小
-                                            "color": SUB_TEXT_COLOR,
-                                            "flex": 1,
-                                            "align": "start",
-                                            "gravity": "center"
-                                        },
-                                        # 中間：標題
                                         {
                                             "type": "text",
                                             "text": "婉 穎 命 光 所",
@@ -179,20 +168,27 @@ def handle_message(event):
                                             "color": TITLE_COLOR,
                                             "size": "xs",
                                             "align": "center",
-                                            "flex": 2,
-                                            "gravity": "center"
-                                        },
-                                        # 右側：空白佔位
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
                                             "flex": 1
                                         }
                                     ]
                                 },
-                                # --- 頂部區域結束 ---
+                                # --- 2. 出生年資訊區 (第二行，靠左) ---
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": top_left_info, # (1990年/36歲)
+                                            "size": "10px",
+                                            "color": SUB_TEXT_COLOR,
+                                            "align": "start",
+                                            "flex": 1
+                                        }
+                                    ]
+                                },
                                 
-                                # 上半部資訊
+                                # --- 上半部資訊 (姓名、五行等) ---
                                 {
                                     "type": "box",
                                     "layout": "horizontal",
